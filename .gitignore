@@ -3,3 +3,5 @@ my_secrets.py
 ./idea/*
 ./out/*
 ./target/*
+.idea/*
+__pycache__/*
