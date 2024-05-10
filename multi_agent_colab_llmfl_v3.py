@@ -31,6 +31,9 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
 from typing_extensions import TypedDict
 import functools
+import openai
+from my_secrets import OPENAI_API_KEY
+
 
 
 def create_agent(llm, tools, system_message: str):
@@ -220,7 +223,7 @@ def agent_node(state, agent, name):
 
 
 # llm = ChatOpenAI(model="gpt-4-turbo", temperature=0)
-llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0)
+llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0, openai_api_key=OPENAI_API_KEY)
 
 # Research agent and node
 tester_agent = create_agent(
