@@ -55,7 +55,7 @@ projects_folder = {
 }
 
 
-#@tool
+# @tool
 def get_covered_methods_by_failedTest(project: str, bug_id: str, test_id: str) -> list:
     """Returns the covered methods by a failed test. Obs: Returns an empty list if it is a passing test."""
     project_gzoltar_folder = os.path.join(paths_dict["gzoltar_files_path"], project)
@@ -67,11 +67,8 @@ def get_covered_methods_by_failedTest(project: str, bug_id: str, test_id: str) -
     coverage_data["test_results"] = test_results
 
     covered_methods = []
-    if test_id not in coverage_data["test_names"].keys():  # Test id not found
-        return None
-    test_name = coverage_data["test_names"][test_id]
-    test_result = coverage_data["test_results"][test_id]
-    if test_name == test_id:
+    if test_id>= 0 and test_id < len(coverage_data["test_names"]):
+        test_result = coverage_data["test_results"][test_id]
         if test_result:  # Passing test
             return None
         for index_s, statement_instance in enumerate(
@@ -82,7 +79,10 @@ def get_covered_methods_by_failedTest(project: str, bug_id: str, test_id: str) -
                 if method not in covered_methods:
                     covered_methods.append(
                         lines_of_code_obj_list["class_name"] + "#" + lines_of_code_obj_list["method_name"])
-    return covered_methods
+
+        return covered_methods
+    else:
+        return None
 
 
 #@tool
@@ -96,10 +96,10 @@ def get_method_body_signature_by_id(project: str, bug_id: str, method_id: str) -
     bugs_data = utils.json_file_to_dict(paths_dict["bugs_with_stack_traces_details_file_path"])
 
     identifier = methods_spectra_data[method_id]
+    print(identifier)
     repo_path = os.path.join(base_path, "open_source_repos_being_studied", projects_folder[project])
     commit_hash = bugs_data[project][bug_id]["bug_report_commit_hash"]
 
-    # Parse the identifier
     # Parse the identifier
     package_class, member_name = identifier.split('#')
     package_name, class_name = package_class.rsplit('.', 1)
@@ -118,5 +118,40 @@ def get_method_body_signature_by_id(project: str, bug_id: str, method_id: str) -
     else:
         return None
 
+# @tool
+def get_method_body_by_method_signature(project: str, bug_id: str,method_signature: str) -> str:
+    """
+    Takes method_signature as parameter and returns the method_body.
+    """
+    bugs_data = utils.json_file_to_dict(paths_dict["bugs_with_stack_traces_details_file_path"])
 
-print(get_method_body_signature_by_id("Cli", "5", 26))
+    repo_path = os.path.join(base_path, "open_source_repos_being_studied", projects_folder[project])
+    commit_hash = bugs_data[project][bug_id]["bug_report_commit_hash"]
+
+    # Split the identifier at the colon to separate package_class and member_name
+    package_class, remainder = method_signature.split(':', 1)
+
+    # Now, split off the method arguments by isolating the member name from its parameters
+    member_name, _ = remainder.split('(', 1)
+
+    # Finally, separate the package name from the class name by splitting at the last dot in package_class
+    package_name, class_name = package_class.rsplit('.', 1)
+
+    # Checkout the specified commit
+    utils.checkout_commit(repo_path, commit_hash)
+
+    # Construct the file path
+    file_path = utils.construct_file_path(repo_path, package_name, class_name)
+
+    # Find the method or constructor and the next member
+    member, next_member, signature = utils.find_member_and_next(file_path, class_name, member_name)
+    if member:
+        source_code = utils.extract_source(file_path, member, next_member)
+        return source_code
+    else:
+        return None
+
+
+print(get_covered_methods_by_failedTest("Cli", "5", 0))
+print(get_method_body_signature_by_id("Cli", "5", 2))
+print(get_method_body_by_method_signature("Cli", "5", "org.apache.commons.cli.Option:getKey()"))

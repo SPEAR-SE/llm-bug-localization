@@ -92,6 +92,10 @@ def find_member_and_next(file_path, class_name, member_name):
         code = file.read()
 
     tree = javalang.parse.parse(code)
+    # Extract the package name
+    package_name = tree.package.name if tree.package else ""
+    full_class_name = f"{package_name}.{class_name}" if package_name else class_name
+
     previous_member = None
     for _, class_node in tree.filter(javalang.tree.ClassDeclaration):
         if class_node.name == class_name:
@@ -102,15 +106,15 @@ def find_member_and_next(file_path, class_name, member_name):
                     signature = ''
                     if isinstance(member, javalang.tree.MethodDeclaration):
                         return_type = member.return_type.name if member.return_type else 'void'
-                        signature = f"{return_type} {member_name}({param_list})"
+                        signature = f"{full_class_name}:{member_name}({param_list})"
                     elif isinstance(member, javalang.tree.ConstructorDeclaration):
-                        signature = f"{class_name}({param_list})"
+                        signature = f"{full_class_name}:{member_name}({param_list})"
 
                     # Try to get the next member if possible
                     next_member = members[index + 1] if index + 1 < len(members) else None
                     return member, next_member, signature
                 previous_member = member
-    return None, None
+    return None, None, None
 
 
 def extract_source(file_path, member, next_member):
