@@ -35,6 +35,7 @@ paths_dict = {
     "gzoltar_files_path": os.path.join(base_path, "llm-bug-localization", "data", "gzoltar_files"),
     "bugs_with_stack_traces_details_file_path": os.path.join(base_path, "llm-bug-localization", "data",
                                                              "bug_reports_with_stack_traces_details.json"),
+    "output_path": os.path.join(base_path, "llm-bug-localization", "data", "output", "Lang_gpt3_grace_example"),
 }
 
 projects_folder = {
@@ -80,7 +81,7 @@ def create_agent(llm, tools, system_message: str):
 
 
 @tool
-def get_covered_methods_by_failedTest(project: str, bug_id: str, test_id: str) -> list:
+def get_covered_methods_by_failedTest(test_id: str) -> list:
     """Returns the covered methods by a failed test. Obs: Returns an empty list if it is a passing test."""
     project_gzoltar_folder = os.path.join(paths_dict["gzoltar_files_path"], project)
     bug_gzoltar_folder = os.path.join(project_gzoltar_folder, bug_id)
@@ -91,6 +92,7 @@ def get_covered_methods_by_failedTest(project: str, bug_id: str, test_id: str) -
     coverage_data["test_results"] = test_results
 
     covered_methods = []
+    test_id = int(test_id)
     if test_id>= 0 and test_id < len(coverage_data["test_names"]):
         test_result = coverage_data["test_results"][test_id]
         if test_result:  # Passing test
@@ -152,19 +154,39 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
     commit_hash = bugs_data[project][bug_id]["bug_report_commit_hash"]
 
     # Split the identifier at the colon to separate package_class and member_name
-    package_class, remainder = method_signature.split(':', 1)
+    if ":" in method_signature:
+        package_class, remainder = method_signature.split(':', 1)
 
-    # Now, split off the method arguments by isolating the member name from its parameters
-    member_name, _ = remainder.split('(', 1)
+        # Now, split off the method arguments by isolating the member name from its parameters
+        member_name, _ = remainder.split('(', 1)
 
-    # Finally, separate the package name from the class name by splitting at the last dot in package_class
-    package_name, class_name = package_class.rsplit('.', 1)
+        # Finally, separate the package name from the class name by splitting at the last dot in package_class
+        package_name, class_name = package_class.rsplit('.', 1)
+    elif "#" in method_signature:
+        package_class, member_name = method_signature.split('#', 1)
+
+        # Finally, separate the package name from the class name by splitting at the last dot in package_class
+        package_name, class_name = package_class.rsplit('$', 1)
+
+    else:
+        parts = method_signature.split('.')
+        if len(parts) > 2:
+            print(method_signature)
+            package_class, member_name = method_signature.split('.', 1)
+            package_name, class_name = package_class.rsplit('.', 1)
+        else:
+            print(method_signature)
+            class_name, member_name = method_signature.split('.', 1)
+            package_name = ""
+
+
 
     # Checkout the specified commit
     utils.checkout_commit(repo_path, commit_hash)
 
     # Construct the file path
     file_path = utils.construct_file_path(repo_path, package_name, class_name)
+    print(file_path)
 
     # Find the method or constructor and the next member
     member, next_member, signature = utils.find_member_and_next(file_path, class_name, member_name)
@@ -195,6 +217,7 @@ def get_test_body_by_id(test_id: str) -> list[str]:
     project_gzoltar_folder = os.path.join(paths_dict["gzoltar_files_path"], project)
     bug_gzoltar_folder = os.path.join(project_gzoltar_folder, bug_id)
     test_names, test_results = utils.read_tests_file(bug_gzoltar_folder)
+    test_id = int(test_id)
     if test_id>= 0 and test_id < len(test_names):
         test_name = test_names[test_id]
 
@@ -398,7 +421,7 @@ def parse_and_save_json(contents, project, bug_id):
     }
 
     # Define the output file path
-    file_path = f"./data/output/Lang_gpt3_grace_example/{project}_{bug_id}.json"
+    file_path = os.path.join(paths_dict["output_path"], f"{project}_{bug_id}.json")
 
     # Create the directory if it doesn't exist
     dir_path = os.path.dirname(file_path)
