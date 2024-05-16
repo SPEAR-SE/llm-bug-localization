@@ -151,7 +151,15 @@ def get_method_body_by_method_signature(project: str, bug_id: str,method_signatu
     else:
         return None
 
+#@tool
+def get_stack_traces(project: str, bug_id: str) -> list:
+    """Returns the stack traces of a given bug."""
+    bugs_data = utils.json_file_to_dict(paths_dict["bugs_with_stack_traces_details_file_path"])
+    stack_traces = bugs_data[project][bug_id]["stack_traces"]
+    return stack_traces
 
-print(get_covered_methods_by_failedTest("Cli", "5", 0))
-print(get_method_body_signature_by_id("Cli", "5", 2))
-print(get_method_body_by_method_signature("Cli", "5", "org.apache.commons.cli.Option:getKey()"))
+
+# print(get_covered_methods_by_failedTest("Cli", "5", 0))
+# print(get_method_body_signature_by_id("Cli", "5", 2))
+# print(get_method_body_by_method_signature("Cli", "5", "org.apache.commons.cli.Option:getKey()"))
+print(get_stack_traces("Cli", "5"))
