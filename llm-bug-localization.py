@@ -96,7 +96,6 @@ def get_method_body_signature_by_id(project: str, bug_id: str, method_id: str) -
     bugs_data = utils.json_file_to_dict(paths_dict["bugs_with_stack_traces_details_file_path"])
 
     identifier = methods_spectra_data[method_id]
-    print(identifier)
     repo_path = os.path.join(base_path, "open_source_repos_being_studied", projects_folder[project])
     commit_hash = bugs_data[project][bug_id]["bug_report_commit_hash"]
 
@@ -158,8 +157,17 @@ def get_stack_traces(project: str, bug_id: str) -> list:
     stack_traces = bugs_data[project][bug_id]["stack_traces"]
     return stack_traces
 
+# @tool
+def get_test_ids(project: str, bug_id: str) -> list:
+    """Returns all the test ids in the data."""
+    project_gzoltar_folder = os.path.join(paths_dict["gzoltar_files_path"], project)
+    bug_gzoltar_folder = os.path.join(project_gzoltar_folder, bug_id)
+    test_names, test_results = utils.read_tests_file(bug_gzoltar_folder)
+    return list(range(len(test_names)))
+
 
 # print(get_covered_methods_by_failedTest("Cli", "5", 0))
 # print(get_method_body_signature_by_id("Cli", "5", 2))
 # print(get_method_body_by_method_signature("Cli", "5", "org.apache.commons.cli.Option:getKey()"))
-print(get_stack_traces("Cli", "5"))
+#print(get_stack_traces("Cli", "5"))
+print(get_test_ids("Cli", "5"))
