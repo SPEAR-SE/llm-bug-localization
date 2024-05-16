@@ -5,6 +5,7 @@ import sys
 import subprocess
 import javalang
 import json
+import glob
 
 sys.path.append('../llm-bug-localization')
 
@@ -147,10 +148,20 @@ def remove_multiline_comments(code):
 
 
 def construct_file_path(base_path, package_name, class_name):
-    """Construct the file path for a Java class based on package and class name."""
+    """Construct the file path for a Java class based on package and class name, allowing for flexible filename matching."""
     package_path = package_name.replace('.', '/')
-    filename = f"{class_name}.java"
-    return os.path.join(base_path, 'src/java', package_path, filename)
+    filename_pattern = f"{class_name}.java"
+    possible_base_dirs = ['src/java', 'src/test']
+
+    for base_dir in possible_base_dirs:
+        search_path = os.path.join(base_path, base_dir, package_path, '**', filename_pattern)
+
+        matching_files = glob.glob(search_path, recursive=True)
+
+        if matching_files:
+            return matching_files[0]
+
+    return None
 
 
 def json_file_to_dict(file_path):
