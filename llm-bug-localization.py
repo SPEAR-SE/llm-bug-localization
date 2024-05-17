@@ -1,3 +1,5 @@
+import math
+
 import utils
 import importlib
 
@@ -81,8 +83,8 @@ def create_agent(llm, tools, system_message: str):
 
 
 @tool
-def get_methods_covered_by_a_test(test_id: str) -> list:
-    """Returns the covered methods by a test."""
+def get_methods_covered_by_a_test(test_id: str, page=1) -> (list, int):
+    """Returns the covered methods by a test and the number of pages left. It is paginated, so if not page number is informed, it returns the first page"""
     project_gzoltar_folder = os.path.join(paths_dict["gzoltar_files_path"], project)
     bug_gzoltar_folder = os.path.join(project_gzoltar_folder, bug_id)
     coverage_data = {"statements_covered_per_test": utils.read_matrix_file(bug_gzoltar_folder),
@@ -92,8 +94,9 @@ def get_methods_covered_by_a_test(test_id: str) -> list:
     coverage_data["test_results"] = test_results
 
     covered_methods = []
+    result = []
     test_id = int(test_id)
-    if test_id>= 0 and test_id < len(coverage_data["test_names"]):
+    if test_id >= 0 and test_id < len(coverage_data["test_names"]):
         test_result = coverage_data["test_results"][test_id]
         #if test_result:  # Passing test
         #    return None
@@ -105,10 +108,20 @@ def get_methods_covered_by_a_test(test_id: str) -> list:
                 if method not in covered_methods:
                     covered_methods.append(
                         lines_of_code_obj_list["class_name"] + "#" + lines_of_code_obj_list["method_name"])
+        n_pages = math.ceil(len(covered_methods) / 200)
+        if n_pages > 1:
+            start = (page - 1) * 200
+            end = page * 200
+            if end > len(covered_methods):
+                end = len(covered_methods)
+            result = covered_methods[start:end]
+        else:
+            result = covered_methods
 
-        return covered_methods
+        return (result, n_pages)
     else:
-        return None
+        return (None, 0)
+
 
 @tool
 def get_tests_that_better_cover_the_stack_trace() -> list:
@@ -161,6 +174,7 @@ def get_method_body_signature_by_id(method_id: str) -> list[str]:
     else:
         return None
 
+
 @tool
 def get_method_body_by_method_signature(method_signature: str) -> str:
     """
@@ -182,21 +196,28 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
         # Finally, separate the package name from the class name by splitting at the last dot in package_class
         package_name, class_name = package_class.rsplit('.', 1)
     elif "#" in method_signature:
+        print("Here")
         package_class, member_name = method_signature.split('#', 1)
+        print(member_name)
+        print(package_class)
 
         # Finally, separate the package name from the class name by splitting at the last dot in package_class
         package_name, class_name = package_class.rsplit('$', 1)
+        print(package_name)
+        print(class_name)
 
     else:
         parts = method_signature.split('.')
         if len(parts) > 2:
             package_class, member_name = method_signature.rsplit('.', 1)
+            print(member_name)
+            print(package_class)
             package_name, class_name = package_class.rsplit('.', 1)
+            print(package_name)
+            print(class_name)
         else:
             class_name, member_name = method_signature.split('.', 1)
             package_name = ""
-
-
 
     # Checkout the specified commit
     utils.checkout_commit(repo_path, commit_hash)
@@ -213,12 +234,14 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
     else:
         return None
 
+
 @tool
 def get_stack_traces() -> list:
     """Returns the stack traces of a given bug."""
     bugs_data = utils.json_file_to_dict(paths_dict["bugs_with_stack_traces_details_file_path"])
     stack_traces = bugs_data[project][bug_id]["stack_traces"]
     return stack_traces
+
 
 @tool
 def get_test_ids() -> list:
@@ -228,6 +251,7 @@ def get_test_ids() -> list:
     test_names, test_results = utils.read_tests_file(bug_gzoltar_folder)
     return list(range(len(test_names)))
 
+
 @tool
 def get_test_body_by_id(test_id: str) -> list[str]:
     """Returns the test body of the given test id."""
@@ -235,7 +259,7 @@ def get_test_body_by_id(test_id: str) -> list[str]:
     bug_gzoltar_folder = os.path.join(project_gzoltar_folder, bug_id)
     test_names, test_results = utils.read_tests_file(bug_gzoltar_folder)
     test_id = int(test_id)
-    if test_id>= 0 and test_id < len(test_names):
+    if test_id >= 0 and test_id < len(test_names):
         test_name = test_names[test_id]
 
         bugs_data = utils.json_file_to_dict(paths_dict["bugs_with_stack_traces_details_file_path"])
@@ -262,23 +286,25 @@ def get_test_body_by_id(test_id: str) -> list[str]:
         else:
             return None
 
+
 def get_test_ids_str():
     project_gzoltar_folder = os.path.join(paths_dict["gzoltar_files_path"], project)
     bug_gzoltar_folder = os.path.join(project_gzoltar_folder, bug_id)
     test_names, test_results = utils.read_tests_file(bug_gzoltar_folder)
-    if len(test_names) <0:
+    if len(test_names) < 0:
         return ""
     if len(test_names) == 1:
         return "0"
     if len(test_names) > 1:
-        test_ids_str = f"0 to {len(test_names)-1}"
+        test_ids_str = f"0 to {len(test_names) - 1}"
     return test_ids_str
 
 
 data = ''
 
 reviewer_tools = [get_method_body_by_method_signature]
-tester_tools = [get_stack_traces, get_test_body_by_id, get_test_ids, get_methods_covered_by_a_test, get_tests_that_better_cover_the_stack_trace]
+tester_tools = [get_stack_traces, get_test_body_by_id, get_test_ids, get_methods_covered_by_a_test,
+                get_tests_that_better_cover_the_stack_trace]
 
 
 # This defines the object that is passed between each node
@@ -511,7 +537,6 @@ json_answers = []
 test_ids_string = get_test_ids_str()
 print(f"Test IDs: {test_ids_string}")
 
-
 # Read the prompt
 with open('data/prompts/prompt.txt', 'r') as file:
     file_contents = file.read()
@@ -543,7 +568,3 @@ for s in graph.stream(
 # Example usage
 # content = s['__end__']['messages'][-1].content
 parse_and_save_json(answers, project, bug_id)
-
-
-
-

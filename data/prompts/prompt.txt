@@ -9,7 +9,7 @@ Step 1: Stack traces Analysis
 - Outcome: Analyze the stack trace to the the system execution at the moment of the failure.
 
 Step 2: Method Selection by tester and direction for the Debugger
-- Action: Get the test ids that better cover the failure stack trace by using `get_tests_that_better_cover_the_stack_trace`. With that, you can understand execution parts more close to the failure. After having these tests, gather all methods related to one of these tests using `get_methods_covered_by_a_test`. Dont forget that all the tests are passing.
+- Action: Get the test ids that better cover the failure stack trace by using `get_tests_that_better_cover_the_stack_trace`. With that, you can understand execution parts more close to the failure. After having these tests, gather all methods related to one of these tests using `get_methods_covered_by_a_test`. This method is paginated. Dont forget that all the tests are passing.
 - Select and direct the Debugger to investigate the `method_signature`s related to the stack trace. Also try to give a heads up to the debugger about the tests intent.
 
 Step 3: Debugger Method Analysis
