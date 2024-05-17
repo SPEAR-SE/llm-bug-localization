@@ -81,8 +81,8 @@ def create_agent(llm, tools, system_message: str):
 
 
 @tool
-def get_covered_methods_by_failedTest(test_id: str) -> list:
-    """Returns the covered methods by a failed test. Obs: Returns an empty list if it is a passing test."""
+def get_methods_covered_by_a_test(test_id: str) -> list:
+    """Returns the covered methods by a test."""
     project_gzoltar_folder = os.path.join(paths_dict["gzoltar_files_path"], project)
     bug_gzoltar_folder = os.path.join(project_gzoltar_folder, bug_id)
     coverage_data = {"statements_covered_per_test": utils.read_matrix_file(bug_gzoltar_folder),
@@ -95,8 +95,8 @@ def get_covered_methods_by_failedTest(test_id: str) -> list:
     test_id = int(test_id)
     if test_id>= 0 and test_id < len(coverage_data["test_names"]):
         test_result = coverage_data["test_results"][test_id]
-        if test_result:  # Passing test
-            return None
+        #if test_result:  # Passing test
+        #    return None
         for index_s, statement_instance in enumerate(
                 coverage_data["statements_covered_per_test"][test_id]):
             if str(statement_instance) == "1":  # 1= covered, 0=not covered
@@ -109,6 +109,24 @@ def get_covered_methods_by_failedTest(test_id: str) -> list:
         return covered_methods
     else:
         return None
+
+@tool
+def get_tests_that_better_cover_the_stack_trace() -> list:
+    """Returns a list of test ids from the 5 tests that better cover the stack trace."""
+    project_gzoltar_folder = os.path.join(paths_dict["gzoltar_files_path"], project)
+    bug_gzoltar_folder = os.path.join(project_gzoltar_folder, bug_id)
+    coverage_data = {"statements_covered_per_test": utils.read_matrix_file(bug_gzoltar_folder),
+                     "lines_of_code_obj_list": utils.read_spectra_file(bug_gzoltar_folder)}
+    test_names, test_results = utils.read_tests_file(bug_gzoltar_folder)
+    coverage_data["test_names"] = test_names
+    coverage_data["test_results"] = test_results
+
+    tests_list = []
+    for test_id in range(len(coverage_data["test_names"])):
+        test_result = coverage_data["test_results"][test_id]
+        if not test_result:  # Fake failing test
+            tests_list.append(test_id)
+    return tests_list
 
 
 @tool
@@ -154,6 +172,7 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
     commit_hash = bugs_data[project][bug_id]["bug_report_commit_hash"]
 
     # Split the identifier at the colon to separate package_class and member_name
+    print(method_signature)
     if ":" in method_signature:
         package_class, remainder = method_signature.split(':', 1)
 
@@ -171,11 +190,9 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
     else:
         parts = method_signature.split('.')
         if len(parts) > 2:
-            print(method_signature)
-            package_class, member_name = method_signature.split('.', 1)
+            package_class, member_name = method_signature.rsplit('.', 1)
             package_name, class_name = package_class.rsplit('.', 1)
         else:
-            print(method_signature)
             class_name, member_name = method_signature.split('.', 1)
             package_name = ""
 
@@ -261,7 +278,7 @@ def get_test_ids_str():
 data = ''
 
 reviewer_tools = [get_method_body_by_method_signature]
-tester_tools = [get_stack_traces, get_test_body_by_id, get_test_ids, get_covered_methods_by_failedTest]
+tester_tools = [get_stack_traces, get_test_body_by_id, get_test_ids, get_methods_covered_by_a_test, get_tests_that_better_cover_the_stack_trace]
 
 
 # This defines the object that is passed between each node
@@ -294,7 +311,7 @@ llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0, openai_api_key=OPENA
 tester_agent = create_agent(
     llm,
     tester_tools,
-    system_message="You are a tester. You should gather all the test_ids, test_body and stack traces. Communicate with the debugger if you need more information about any method.",
+    system_message="You are a tester. You should gather all the test_ids, test_body and stack traces. There are no test failures in this bug, and there is a stack trace of the error. Communicate with the debugger if you need more information about any method.",
 )
 tester_node = functools.partial(agent_node, agent=tester_agent, name="Tester")
 
@@ -495,49 +512,11 @@ test_ids_string = get_test_ids_str()
 print(f"Test IDs: {test_ids_string}")
 
 
-# prompt1 = f"""
-# As a Debugger, your primary objective is to identify the fault in the methods covered by failing test for bug id {bug_id}. The fault can be fix in a method or any removal of code in a method. You must use the tools to retrive necessary information. Examine test_id {test_ids_string}. Use the test_id {test_ids_string} and call `get_test_body` and `get_stacktrace` to understand the test and where it fails. Then gather all the method ids covered by test_id {test_ids_string} by calling `get_covered_method_ids_by_failedTest`. Then you analyze all the methods covered methods by test_id {test_ids_string}. `get_method_body_signature_by_id` will provide you the method's id and body when given its method_id. Analyze the covered method ids so that you can understand what each method do and how it is interconnected with other methods. Sometimes the method might not be directly related with the test. There can be multiple methods with the same name but different parameters. Your task is to identify the method where is the fault and in which method the fix should happen.
-# Carefully analyze the code of each method, looking for how the fault might originate or propagate. Your goal is to identify the most suspicious method. If the agents feel like they have identified the faulty methods then FINISH.
-
-# Conclude your analysis with a JSON object ranking these methods and summarizing your reasoning in one sentence. The final answer must follow the specified structure: {format_instructions}. If you feel like you have identified the faulty methods then STOP and FINISH.
-# """
-
-# prompt2 = f"""
-# Fault Localization Workflow for Bug ID: {bug_id}
-
-# Objective: Collaboratively identify faulty methods causing a specific bug, with the Tester analyzing test details and the Debugger examining methods suspected of faults.
-
-# Step-by-Step Analysis:
-
-# Step 1: Tester Analysis
-# - Action: Analyze the test details for `test_id` {test_ids_string} using `get_test_body_stacktrace`.
-# - Outcome: Analyze the test body to know the intent of the test. Then analyze the stacktrace to get insight about why this test might be failing.
-
-# Step 2: Method Selection by tester and direction for the Debugger
-# - Action: Gather all methods related to the test failure using `get_covered_method_by_failedTest`.
-#  Compile a list of potentially faulty methods based on the test analysis.
-# - Select and direct the Debugger to investigate all methods suspected of faults by providing their `method_signature`.
-
-# Step 3: Debugger Method Analysis
-# - Action: Retrieve and analyze each suspected method's body with `get_method_body_by_method_signature`. The retrieved method body will contain only the lines covered by the test.
-# - Outcome: Conduct an in-depth analysis of logic, parameters, and interactions.
-
-# Step 4: Collaborative Review
-# - Action: Discuss findings to determine if the method contains the fault.
-# - Outcome: If a fault is identified by agreement of tester and debugger, conclude the analysis; otherwise, the tester should ask the debugger to analyze other method.
-
-
-# Conclusion and Format for Reporting:
-# - Cease analysis upon fault identification or continue as needed based on Tester's guidance and collaborative review. You must provide final findings in JSON format as per {format_instructions}, including the most suspicious method name and reasons.
-
-# Note: Effective communication and feedback between the Tester and Debugger are crucial for success.
-# """
-
 # Read the prompt
-with open('data/prompts/prompt2.txt', 'r') as file:
+with open('data/prompts/prompt.txt', 'r') as file:
     file_contents = file.read()
 
-prompt2 = f"{file_contents.format(bug_id=bug_id, test_ids_string=test_ids_string, format_instructions=format_instructions)}"
+prompt = f"{file_contents.format(bug_id=bug_id, test_ids_string=test_ids_string, format_instructions=format_instructions)}"
 
 answers = []
 
@@ -545,7 +524,7 @@ for s in graph.stream(
         {
             "messages": [
                 HumanMessage(
-                    content=prompt2
+                    content=prompt
                 )
             ],
         },
@@ -563,7 +542,7 @@ for s in graph.stream(
 # print(answers)
 # Example usage
 # content = s['__end__']['messages'][-1].content
-parse_and_save_json(answers[:-1], project, bug_id)
+parse_and_save_json(answers, project, bug_id)
 
 
 

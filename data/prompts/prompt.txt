@@ -1,0 +1,27 @@
+Fault Localization Workflow for Bug ID: {bug_id}
+
+Objective: Collaboratively identify faulty methods causing a specific bug, with the Tester analyzing test details and the Debugger examining methods suspected of faults.
+
+Step-by-Step Analysis:
+
+Step 1: Stack traces Analysis
+- Action: Analyze the stack trace of the failure using `get_stack_traces`. In these stack trace you'll be able to find methods and files that can potentially be related to the failure. You can send these methods signatures for the Debugger to investigate.
+- Outcome: Analyze the stack trace to the the system execution at the moment of the failure.
+
+Step 2: Method Selection by tester and direction for the Debugger
+- Action: Get the test ids that better cover the failure stack trace by using `get_tests_that_better_cover_the_stack_trace`. With that, you can understand execution parts more close to the failure. After having these tests, gather all methods related to one of these tests using `get_methods_covered_by_a_test`. Dont forget that all the tests are passing.
+- Select and direct the Debugger to investigate the `method_signature`s related to the stack trace. Also try to give a heads up to the debugger about the tests intent.
+
+Step 3: Debugger Method Analysis
+- Action: Retrieve and analyze ALL suspected method's body with `get_method_body_by_method_signature`. The retrieved method body will contain only the lines covered by the test. 
+- Outcome: Must conduct an in-depth analysis of ALL the suspected method_signature pointed by tester. Try to use the insights gained from tester of the test and stacktrace. Keep in mind that the methods might be incomplete since it only contains lines that were covered by the test.
+
+Step 4: Collaborative Review
+- Action: Discuss findings to determine if the method contains the fault.
+- Outcome: After you have analyzed all the suspected methods then come to final decision about which method you think is most suspicious. You have to give an in depth reason why the method is faulty what can be the fix to this fault. Remember again you must analyze all the methods the tester told the debugger to.
+
+
+Conclusion and Format for Reporting:
+- Cease analysis upon fault identification or continue as needed based on Tester's guidance and collaborative review. You must provide final findings in JSON format as per {format_instructions}, including the most suspicious method signature (containing the file name and method name) and reasons. Prefix your final response with FINAL ANSWER.
+
+Note: Effective communication and feedback between the Tester and Debugger are crucial for success.
