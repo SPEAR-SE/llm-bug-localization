@@ -195,16 +195,16 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
 
         # Finally, separate the package name from the class name by splitting at the last dot in package_class
         package_name, class_name = package_class.rsplit('.', 1)
-    elif "#" in method_signature:
-        print("Here")
-        package_class, member_name = method_signature.split('#', 1)
-        print(member_name)
-        print(package_class)
-
+    elif "#" in method_signature and method_signature.count('$') == 3:
+        m_signature, remainder = method_signature.split('"#"', 1)
+        package_class, member_name = method_signature.split('$', 1)
         # Finally, separate the package name from the class name by splitting at the last dot in package_class
         package_name, class_name = package_class.rsplit('$', 1)
-        print(package_name)
-        print(class_name)
+
+    elif "#" in method_signature:
+        package_class, member_name = method_signature.split('#', 1)
+        # Finally, separate the package name from the class name by splitting at the last dot in package_class
+        package_name, class_name = package_class.rsplit('$', 1)
 
     else:
         parts = method_signature.split('.')
@@ -223,6 +223,9 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
     utils.checkout_commit(repo_path, commit_hash)
 
     # Construct the file path
+    print(repo_path)
+    print(package_name)
+    print(class_name)
     file_path = utils.construct_file_path(repo_path, package_name, class_name)
     print(file_path)
 
