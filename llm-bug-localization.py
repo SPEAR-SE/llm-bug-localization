@@ -217,7 +217,7 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
         # Finally, separate the package name from the class name by splitting at the last dot in package_class
         package_name, class_name = package_class.rsplit('.', 1)
     elif "$" in method_signature:
-        if project == "Csv":
+        if project == "Csv" or project=="JaksonCore":
             print("5.5!")
             package_class, member_name = method_signature.rsplit('.', 1)
             package_name, class_name = package_class.rsplit('$', 1)

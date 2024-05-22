@@ -13,7 +13,7 @@ Step 2: Method Selection by tester and direction for the Debugger
 - Select and direct the Debugger to investigate the `method_signature`s related to the stack trace. Also try to give a heads up to the debugger about the tests intent.
 
 Step 3: Debugger Method Analysis
-- Action: Retrieve and analyze ALL suspected method's body with `get_method_body_by_method_signature`. The retrieved method body will contain only the lines covered by the test. 
+- Action: Retrieve and analyze ALL suspected method's body with `get_method_body_by_method_signature` (the signature must have AT lEAST the file and method names). The retrieved method body will contain only the lines covered by the test.
 - Outcome: Must conduct an in-depth analysis of ALL the suspected method_signature pointed by tester. Try to use the insights gained from tester of the test and stacktrace. Keep in mind that the methods might be incomplete since it only contains lines that were covered by the test.
 
 Step 4: Collaborative Review
