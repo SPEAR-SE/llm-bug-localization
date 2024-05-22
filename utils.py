@@ -152,6 +152,9 @@ def construct_file_path(base_path, package_name, class_name):
     package_path = package_name.replace('.', '/')
     filename_pattern = f"{class_name}.java"
     possible_base_dirs = ['src', 'src/java', 'src/test']
+    print(base_path)
+    print(package_name)
+    print(class_name)
 
     for base_dir in possible_base_dirs:
         search_path = os.path.join(base_path, base_dir, package_path, '**', filename_pattern)

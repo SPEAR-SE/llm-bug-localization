@@ -187,7 +187,11 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
 
     # Split the identifier at the colon to separate package_class and member_name
     print(method_signature)
+    if "(" in method_signature:
+        print("1!")
+        method_signature = method_signature.split("(")[0]
     if ":" in method_signature:
+        print("2!")
         package_class, remainder = method_signature.split(':', 1)
 
         # Now, split off the method arguments by isolating the member name from its parameters
@@ -196,26 +200,40 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
         # Finally, separate the package name from the class name by splitting at the last dot in package_class
         package_name, class_name = package_class.rsplit('.', 1)
     elif "#" in method_signature and method_signature.count('$') == 3:
+        print("3!")
         m_signature, remainder = method_signature.split('"#"', 1)
         package_class, member_name = method_signature.split('$', 1)
         # Finally, separate the package name from the class name by splitting at the last dot in package_class
         package_name, class_name = package_class.rsplit('$', 1)
 
-    elif "#" in method_signature:
+    elif "#" in method_signature and '$' in method_signature:
+        print("4!")
         package_class, member_name = method_signature.split('#', 1)
         # Finally, separate the package name from the class name by splitting at the last dot in package_class
         package_name, class_name = package_class.rsplit('$', 1)
-
+    elif "#" in method_signature:
+        print("5!")
+        package_class, member_name = method_signature.split('#', 1)
+        # Finally, separate the package name from the class name by splitting at the last dot in package_class
+        package_name, class_name = package_class.rsplit('.', 1)
+    elif "$" in method_signature:
+        print("6!")
+        package_class, member_name = method_signature.rsplit('.', 1)
+        print(member_name)
+        print(package_class)
+        package_class = package_class.rsplit('$', 1)[0]
+        package_name, class_name = package_class.rsplit('.', 1)
+        print(package_name)
+        print(class_name)
     else:
+        print("7!")
         parts = method_signature.split('.')
         if len(parts) > 2:
+            print("8!")
             package_class, member_name = method_signature.rsplit('.', 1)
-            print(member_name)
-            print(package_class)
             package_name, class_name = package_class.rsplit('.', 1)
-            print(package_name)
-            print(class_name)
         else:
+            print("9!")
             class_name, member_name = method_signature.split('.', 1)
             package_name = ""
 
