@@ -215,7 +215,10 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
         print("4!")
         package_class, member_name = method_signature.split('#', 1)
         # Finally, separate the package name from the class name by splitting at the last dot in package_class
-        package_name, class_name = package_class.rsplit('$', 1)
+        if project=="Jsoup":
+            package_name, class_name = package_class.rsplit('.', 1)
+        else:
+            package_name, class_name = package_class.rsplit('$', 1)
     elif "#" in method_signature:
         print("5!")
         package_class, member_name = method_signature.split('#', 1)
