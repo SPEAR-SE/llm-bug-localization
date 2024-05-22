@@ -89,6 +89,9 @@ def checkout_commit(repo_path, commit_hash):
 
 def find_member_and_next(file_path, class_name, member_name):
     """Find the specified method or constructor and the next member in the file."""
+    print (file_path)
+    print(class_name)
+    print(member_name)
     with open(file_path, 'r') as file:
         code = file.read()
 
@@ -151,7 +154,7 @@ def construct_file_path(base_path, package_name, class_name):
     """Construct the file path for a Java class based on package and class name, allowing for flexible filename matching."""
     package_path = package_name.replace('.', '/')
     filename_pattern = f"{class_name}.java"
-    possible_base_dirs = ['src', 'src/java', 'src/test', 'src/main/java', 'src/test/java']
+    possible_base_dirs = ['src', 'src/java', 'src/test', 'src/main/java', 'gson/src/main/java', 'src/test/java']
 
     for base_dir in possible_base_dirs:
         search_path = os.path.join(base_path, base_dir, package_path, '**', filename_pattern)

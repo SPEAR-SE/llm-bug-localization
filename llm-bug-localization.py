@@ -251,6 +251,7 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
 
     # Find the method or constructor and the next member
     member, next_member, signature = utils.find_member_and_next(file_path, class_name, member_name)
+
     if member:
         source_code = utils.extract_source(file_path, member, next_member)
         return source_code
