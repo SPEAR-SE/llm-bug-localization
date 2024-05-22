@@ -219,12 +219,7 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
     elif "$" in method_signature:
         print("6!")
         package_class, member_name = method_signature.rsplit('.', 1)
-        print(member_name)
-        print(package_class)
-        package_class = package_class.rsplit('$', 1)[0]
         package_name, class_name = package_class.rsplit('.', 1)
-        print(package_name)
-        print(class_name)
     else:
         print("7!")
         parts = method_signature.split('.')
@@ -244,8 +239,10 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
     print(repo_path)
     print(package_name)
     print(class_name)
-    file_path = utils.construct_file_path(repo_path, package_name, class_name)
-    print(file_path)
+    c_name = class_name
+    if '$' in c_name:
+        c_name, class_name = class_name.rsplit('$', 1)
+    file_path = utils.construct_file_path(repo_path, package_name, c_name)
 
     # Find the method or constructor and the next member
     member, next_member, signature = utils.find_member_and_next(file_path, class_name, member_name)
