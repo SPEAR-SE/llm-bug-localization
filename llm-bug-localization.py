@@ -95,7 +95,10 @@ def get_methods_covered_by_a_test(test_id: str, page=1) -> (list, int):
 
     covered_methods = []
     result = []
-    test_id = int(test_id)
+    try:
+        test_id = int(test_id)
+    except ValueError:
+        return None
     if test_id >= 0 and test_id < len(coverage_data["test_names"]):
         test_result = coverage_data["test_results"][test_id]
         #if test_result:  # Passing test
@@ -105,7 +108,7 @@ def get_methods_covered_by_a_test(test_id: str, page=1) -> (list, int):
             if str(statement_instance) == "1":  # 1= covered, 0=not covered
                 lines_of_code_obj_list = coverage_data["lines_of_code_obj_list"][index_s]
                 method = lines_of_code_obj_list["class_name"] + "#" + lines_of_code_obj_list["method_name"]
-                if method not in covered_methods:
+                if method not in covered_methods and "<clinit>" not in method:
                     covered_methods.append(
                         lines_of_code_obj_list["class_name"] + "#" + lines_of_code_obj_list["method_name"])
         n_pages = math.ceil(len(covered_methods) / 200)
@@ -215,17 +218,17 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
         print("4!")
         package_class, member_name = method_signature.split('#', 1)
         # Finally, separate the package name from the class name by splitting at the last dot in package_class
-        if project=="Jsoup":
-            package_name, class_name = package_class.rsplit('.', 1)
-        else:
-            package_name, class_name = package_class.rsplit('$', 1)
+        #if project=="Jsoup":
+        #    package_name, class_name = package_class.rsplit('.', 1)
+        #else:
+        package_name, class_name = package_class.rsplit('$', 1)
     elif "#" in method_signature:
         print("5!")
         package_class, member_name = method_signature.split('#', 1)
         # Finally, separate the package name from the class name by splitting at the last dot in package_class
         package_name, class_name = package_class.rsplit('.', 1)
     elif "$" in method_signature:
-        if project == "Csv" or project=="JaksonCore":
+        if project == "Csv" or project == "JaksonCore":
             print("5.5!")
             package_class, member_name = method_signature.rsplit('.', 1)
             package_name, class_name = package_class.rsplit('$', 1)
@@ -258,6 +261,10 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
     file_path = utils.construct_file_path(repo_path, package_name, c_name)
 
     # Find the method or constructor and the next member
+    if (member_name == "invokeNative" or member_name=="InvocationTargetException") and project == "Gson" and bug_id == "8":
+        return None
+    if member_name=="testFails" and project == "JacksonDatabind" and bug_id == "59":
+        return None
     member, next_member, signature = utils.find_member_and_next(file_path, class_name, member_name)
 
     if member:
@@ -290,7 +297,10 @@ def get_test_body_by_id(test_id: str) -> list[str]:
     project_gzoltar_folder = os.path.join(paths_dict["gzoltar_files_path"], project)
     bug_gzoltar_folder = os.path.join(project_gzoltar_folder, bug_id)
     test_names, test_results = utils.read_tests_file(bug_gzoltar_folder)
-    test_id = int(test_id)
+    try:
+        test_id = int(test_id)
+    except ValueError:
+        return None
     if test_id >= 0 and test_id < len(test_names):
         test_name = test_names[test_id]
 

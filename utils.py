@@ -54,7 +54,10 @@ def read_spectra_file(file_path):
 def read_tests_file(file_path):
     test_names = []
     test_results = []
-    with open(os.path.join(file_path, "SBEST_test_results.csv"), 'r') as file:
+    tests_file = os.path.join(file_path, "SBEST_test_results.csv")
+    if not os.path.exists(tests_file):
+        tests_file = os.path.join(file_path, "SBEST_test_results.csv")
+    with open(os.path.join(file_path, "test_results_original_ochiai.csv"), 'r') as file:
         content = file.read().replace('\0', '')
         csv_reader = csv.reader(content.splitlines())
         for row in csv_reader:
@@ -154,7 +157,7 @@ def construct_file_path(base_path, package_name, class_name):
     """Construct the file path for a Java class based on package and class name, allowing for flexible filename matching."""
     package_path = package_name.replace('.', '/')
     filename_pattern = f"{class_name}.java"
-    possible_base_dirs = ['src', 'src/java', 'src/test', 'src/main/java', 'gson/src/main/java', 'src/test/java']
+    possible_base_dirs = ['src', 'src/java', 'src/test', 'src/main/java', 'gson/src/main/java', 'src/test/java', 'test/org']
 
     for base_dir in possible_base_dirs:
         search_path = os.path.join(base_path, base_dir, package_path, '**', filename_pattern)
