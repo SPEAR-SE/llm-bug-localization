@@ -1,0 +1,110 @@
+
+
+While investigating an issue, I found that there was different behavior for normal deserializers and key deserializers where deserializing a value as a field works as expected, but as a map key fails with "not a valid representation: wrong number of arguments".
+A basic example:
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import static org.junit.Assert.assertEquals;
+
+public class KeyVsFieldTest {
+    @Test
+    public void deserializeAsField() throws IOException {
+        AsField as_field = new ObjectMapper().readValue("{\"name\": \"first.last\"}", AsField.class);
+        assertEquals(as_field.getName()._firstname, "first");
+        assertEquals(as_field.getName()._lastname, "last");
+    }
+
+    @Test
+    public void deserializeAsKey() throws IOException {
+        Map<FullName, Double> map =
+            new ObjectMapper().readValue("{\"first.last\": 42}", new TypeReference<Map<FullName, Double>>() {
+            });
+       /* 
+          Fails with: com.fasterxml.jackson.databind.exc.InvalidFormatException: Can not construct Map key of type KeyVsFieldTest$FullName from String "first.last": not a valid representation: wrong number of arguments
+ at [Source: java.io.StringReader@7113b13f; line: 1, column: 2]
+       */
+
+        Entry<FullName, Double> entry = map.entrySet().iterator().next();
+
+        assertEquals(entry.getKey()._firstname, "first");
+        assertEquals(entry.getKey()._lastname, "last");
+        assertEquals(entry.getValue().doubleValue(), 42, 0);
+    }
+
+    public static class AsField {
+        private final FullName _name;
+
+        public AsField(@JsonProperty("name") FullName aName) {
+            _name = aName;
+        }
+
+        public FullName getName() {
+            return _name;
+        }
+    }
+
+    public static class FullName {
+        private final String _firstname;
+        private final String _lastname;
+
+        private FullName(String firstname, String lastname) {
+            _firstname = firstname;
+            _lastname = lastname;
+        }
+
+        @JsonCreator
+        public static FullName valueOf(String value) {
+            String[] mySplit = value.split("\\.");
+            return new FullName(mySplit[0], mySplit[1]);
+        }
+
+        public static FullName valueOf(String firstname, String lastname) {
+            return new FullName(firstname, lastname);
+        }
+
+        @JsonValue
+        @Override
+        public String toString() {
+            return _firstname + "." + _lastname;
+        }
+    }
+}
+It looks like this is because in BasicBeanDescriptor, findFactoryMethod has an incorrect assumption about the contents of _classInfo.getStaticMethods(), which will have any method named valueOf and static methods annotated with @JsonCreator:
+    @Override
+    public Method findFactoryMethod(Class<?>... expArgTypes)
+    {
+        // So, of all single-arg static methods:
+        for (AnnotatedMethod am : _classInfo.getStaticMethods()) {
+            if (isFactoryMethod(am)) {
+                // And must take one of expected arg types (or supertype)
+                Class<?> actualArgType = am.getRawParameterType(0);
+                for (Class<?> expArgType : expArgTypes) {
+                    // And one that matches what we would pass in
+                    if (actualArgType.isAssignableFrom(expArgType)) {
+                        return am.getAnnotated();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+This can be worked around by annotating static factory methods not intended to be used as @JsonCreators with @JsonIgnore, due to the resolution in _classInfo.getStaticMethods(), so is not really urgent.
+Please let me know if you have any questions about the issue!
+Thanks,
+Chris
+
+
+
+Thank you for the quick response! Have a lovely day :)
+
+
+
+@narbsy thank you for reporting this -- it was an edge case, easy to fix once known.
+

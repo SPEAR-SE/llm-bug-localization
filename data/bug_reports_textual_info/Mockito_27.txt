@@ -1,0 +1,56 @@
+
+
+If I create a mock and stub a method so it throws an exception and do that twice the first exception will be thrown upon invoking the second stub instruction.
+Example:
+@Test
+public void testThrowException() {
+    Object o = Mockito.mock(Object.class);
+    // test behavior with Runtimeexception
+    Mockito.when(o.toString()).thenThrow(RuntimeException.class);
+    // ...
+    // test behavior with another exception
+    // this throws a RuntimeException
+    Mockito.when(o.toString()).thenThrow(IllegalArgumentException.class);
+    // ...
+}
+
+I can work around this if I do it the other way around with doThrow...when. But I lose type safety then. Can you fix this?
+
+
+
+I don't exaclty know what the actual code is supposed to achieve, but if the mock is supposed to raise different exceptions on subsequent interaction then mockito is misused in this case. Correct code would be :
+@Test
+public void testThrowException() {
+    Object o = Mockito.mock(Object.class);
+    Mockito.when(o.toString()).thenThrow(RuntimeException.class);
+                              .thenThrow(IllegalArgumentException.class);
+
+
+    assertThatThrownBy(() -> o.toString()).isInstanceOf(RuntimeException.class);
+    assertThatThrownBy(() -> o.toString()).isInstanceOf(IllegalArgumentException.class);
+}
+
+This assertThatThrownBy comes with AssertJ 3.1.0 (java 8)
+
+
+
+My example isn't the best one. Imagine I have a method with an input parameter. Depeding on the parameter it can throw exception A or B.
+When I test the calling method of the above mentioned one I have two test cases. As in my example above I first test what happens when exception A is thrown. After that I want to test with exception B.
+
+
+
+Should you not create 2 different testcases for this?
+
+Therefore 1 test case verifies that whenever you provide input parameter X, it throws A.
+The other test case verifies that whenever your provide input parameter Y, it throws B.
+
+Then the stubbing for each case is done in a seperate testcase, causing the correct exception in each case.
+
+
+
+Yes, that works.
+
+
+
+Closing as resolved per #282 (comment)
+

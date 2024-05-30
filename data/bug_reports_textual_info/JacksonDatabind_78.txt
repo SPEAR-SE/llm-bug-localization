@@ -1,0 +1,153 @@
+
+
+I have send email to info@fasterxml.com
+
+
+
+I have received this and am investigating possible patch. Problem is quite specific, but some aspects are more general.
+
+
+
+Fixed in 2.7, 2.8 and master (to the best of my knowledge): will be in 2.8.9 and 2.7.9.1, as well as 2.9.0.pr3.
+
+
+
+nice~
+
+
+
+when do you want to release 2.7.10,2.8.9 and 2.9.0.pr3?
+
+
+
+when do you want to release 2.7.10,2.8.9 and 2.9.0.pr3?
+
+
+
+I don't think blacklist is a good mechanism to prevent this issue, because there are other Java Deserialized Gadgets or ClassLoaders can arise this problem including com.sun.org.apache.xalan which is in your list.
+
+
+
+I suggest you to use black list like this
+"^bsh[.].", "^com[.]google[.]inject[.].", "^com[.]mchange[.]v2[.]c3p0[.].", "^com[.]sun[.]jndi[.].", "^com[.]sun[.]corba[.].", "^com[.]sun[.]javafx[.].", "^com[.]sun[.]org[.]apache[.]regex[.]internal[.].", "^java[.]awt[.].", "^java[.]rmi[.].", "^javax[.]management[.].", "^javax[.]naming[.].", "^javax[.]script[.].", "^javax[.]swing[.].", "^org[.]apache[.]commons[.]beanutils[.].", "^org[.]apache[.]commons[.]collections[.]functors[.].", "^org[.]apache[.]myfaces[.].", "^org[.]apache[.]wicket[.].", ".org[.]apache[.]xalan.", "^org[.]codehaus[.]groovy[.]runtime[.].", "^org[.]hibernate[.].", "^org[.]python[.].", "^org[.]springframework..", "^sun[.]rmi[.].", "^javax[.]imageio[.].*", "^java[.]util[.]ServiceLoader$", "^java[.]net[.]URLClassLoader$”
+
+
+
+hello, everybody, I wait for new version, where can I get the version release 2.7.10,2.8.9 and 2.9.0.pr3?
+
+
+
+@cowtowncoder
+When 2.8.9 will be released? I can't find it in mvn repo or git release...
+
+
+
+When 2.8.9 will be released? I wait for new version...
+
+
+
+@maluguos I do not release new version for every single bug fix. Have a look at release schedule:
+https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.7
+New version is unlikely to be released within next couple of weeks. Same goes for 2.8.9.
+If a new version is needed sooner, you will need to use a local snapshot build.
+
+
+
+waiting for version 2.8.9 release...
+
+
+
+@ayound I appreciate the list, but to be honest I think that restriction within core databind need to be focused on demonstratable security concerns. There are many types that could potentially be problematic, but I would hesitate to include very wide limits on, say, org. springframework, since there are utility types that may well be already in use by some users.
+For 2.8 I did include a few types as per:
+https://github.com/kantega/notsoserial
+so I am not against extending the list, but at this point prefer keeping static blacklist to minimum.
+
+
+
+Everyone: I did do mvn deploy for 2.8 branches, so snapshots via Sonatype snapshot repository (for 2.8.9-SNAPSHOT) should have initial protection for vulnerabilities indicated.
+Perhaps more importantly, I just pushed micro-patch 2.7.9.1 of jackson-databind: it should be available soon via Maven Central. I decided to do this because it is not clear whether there will be more 2.7 full releases (and if so, when), and due to criticality of this fix it seemed better to release micro-patch at this point.
+As to 2.8: set of fixes is rather short, still:
+https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.8.9
+so I'll think of whether I should similarly release 2.8.8.1 as full release may take time (although there will certainly still be 2.8.9 as 2.9 is not yet released).
+If anyone feels urgency wrt 2.8 please let me know.
+
+
+
+Everyone:  Any impact on version 2.1.0?
+thank you in advanced
+
+
+
+@logan2013 Yes, if (and only if):
+
+Object model is using either "default typing", or @JsonTypeInfo with nominal base type of java.lang.Object (or one of small number of tag-on "tag" types like java.io.Serializable and perhaps java.util.Comparable)
+JSON content comes from untrusted source, that is, someone can craft specific JSON message.
+
+If so, there is at least one reproduction of an issue.
+Now: as to versions prior to 2.7: I have a plan to implement a new Jackson module which can be used with ALL 2.x versions, including 2.1.0. This may take bit more time, but would be more useful than handling within jackson-databind.
+I hope this helps.
+
+
+
+@cowtowncoder Hello, our product used 2.8.1, we need to solve the problem urgently.How can we do? We hope your help!
+Thank you in advance
+
+
+
+Everyone: Any impact on version 1.x?
+thank you in advanced
+
+
+
+@cowtowncoder any impact on jackson 2.7.5 + JDK 1.7 and above?
+
+
+
+@alexchenfeiyu Do you know the vulnerability and that it affects you? I appreciate your general concern, but the vulnerability is quite specific and does not apply to majority of users.
+Anyway: I will go ahead now and release 2.8.8.1: it will be available within couple of hours.
+@ycrxun In theory yes, versions 1.5 and above.
+@paulwong888 As per above, not very specific to Jackson version: but you may want to use jackson-databind 2.7.9.1 since it's the first one to have the fix.
+However: it is possible JDK version matters; might not work on later JDK versions -- but I don't have specific knowledge that it would be prevent by particular version. Using latest JDK from given line could be safer (depends on embedded version of XSL engine JDK bundles).
+As to vulnerability, this only applies to polymorphic type handling via default typing (or especially annotated @JsonTypeInfo on java.lang.Object type property) -- and obviously JSON crafted by untrusted third party.
+
+
+
+@cowtowncoder  I did not find the 2.8.8.1 url ，please provide this url, thank you!
+
+
+
+
+Does anyone know when CVE-2017-7525 is going to be published in the NVD? I see that it was created at least as early as July 16, here it is November 2 and it's still not published.
+
+Hi @cowtowncoder , may I ask a off-topic question? When I try to following all the discussion above, I notice that you mention the cve-2017-7525 before it is published. Could you let me know how do you know it? (Do you guys already discuss it on other channels?)
+
+
+
+@yiikou Whoever files an issue typically can see it before issue becomes publicly available -- and person filing usually sends email to a fasterxml dot com email (either mine, tatu, or general purpose info). This is usually where information comes from: CVE submitter is expected to contact the "vendor" (in this case, author(s) of the OSS package).
+
+
+
+
+@yiikou Whoever files an issue typically can see it before issue becomes publicly available -- and person filing usually sends email to a fasterxml dot com email (either mine, tatu, or general purpose info). This is usually where information comes from: CVE submitter is expected to contact the "vendor" (in this case, author(s) of the OSS package).
+
+Thank you for the explanation. I got your point: you are either a CVE submitter or member of the vendor team, right? And please allow me to ask an additional question, would you have any concern about discussing this vulnerability before it is disclosed? Since the potential attackers may notice this vulnerability before it is patched, and leverage it to exploit product.
+
+
+
+@yiikou right. I am involved in discussions happening outside of public CVE stream.
+As to discussions on issue tracker, it is bit of a balance: I usually do not include necessary details for reproduction for polymorphic type deserialization exploits (such as specific classes involved or properties/json used).
+If we are talking about this particular issue (CVE-2017-7525), it was patched years ago so discussion would be fine.
+Another source of information about exploit are actual block list additions; these do give some information on exploits themselves: not complete ones (since no reproduction is added as unit tests),  but could be helpful for someone looking for reconstructing exploits.
+I am not aware of any actual real-world exploits against Jackson, for what that is worth. That does not mean there has not been any, could just be that those are not published in general, or that if they are no one related to Jackson has been notified.
+
+
+
+
+@yiikou right. I am involved in discussions happening outside of public CVE stream.
+As to discussions on issue tracker, it is bit of a balance: I usually do not include necessary details for reproduction for polymorphic type deserialization exploits (such as specific classes involved or properties/json used).
+If we are talking about this particular issue (CVE-2017-7525), it was patched years ago so discussion would be fine.
+Another source of information about exploit are actual block list additions; these do give some information on exploits themselves: not complete ones (since no reproduction is added as unit tests), but could be helpful for someone looking for reconstructing exploits.
+I am not aware of any actual real-world exploits against Jackson, for what that is worth. That does not mean there has not been any, could just be that those are not published in general, or that if they are no one related to Jackson has been notified.
+
+Thank you for the explanation, I appreciateit.
+

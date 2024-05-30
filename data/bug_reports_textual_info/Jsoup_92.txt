@@ -1,0 +1,37 @@
+
+
+In case there is duplicated tag attribute Jsoup parses the last one, but Chrome browser takes the first one.
+
+
+
+That's the place for a fix: 
+
+
+jsoup/src/main/java/org/jsoup/parser/Token.java
+
+
+         Line 128
+      in
+      7ff7c43
+
+
+
+
+
+
+ // todo: check if attribute name exists; if so, drop and error 
+
+
+
+
+
+Let's just keep the first attribute value and drop the next one without raising an error. I will try to implement it soon.
+
+When the user agent leaves the attribute name state (and before emitting the tag token, if appropriate), the complete attribute's name must be compared to the other attributes on the same token; if there is already an attribute on the token with the exact same name, then this is a parse error and the new attribute must be dropped, along with the value that gets associated with it (if any).
+
+https://dev.w3.org/html5/pf-summary/syntax.html#attribute-name-state
+
+
+
+Thanks! Fixed
+

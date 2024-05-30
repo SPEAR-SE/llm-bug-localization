@@ -1,0 +1,27 @@
+{
+    "id": 407,
+    "status": "Fixed",
+    "summary": "Order of jscomp_error, jscomp_warning, jscomp_off flags are not preserved",
+    "labels": [
+        "Type-Defect",
+        "Priority-Medium"
+    ],
+    "stars": 1,
+    "commentCount": 2,
+    "comments": [
+        {
+            "id": 0,
+            "commenterId": -7699928860083865744,
+            "content": "&quot;off&quot; always takes precedence over &quot;warning&quot;, and &quot;warning&quot; always takes precedence over &quot;error&quot;\r\n\r\nThis should be changed so that the last arguments always has highest precedence.\r\n",
+            "timestamp": 1301953709,
+            "attachments": []
+        },
+        {
+            "id": 1,
+            "commenterId": -7699928860083865744,
+            "content": "This issue was closed by revision r973.",
+            "timestamp": 1302142581,
+            "attachments": []
+        }
+    ]
+}

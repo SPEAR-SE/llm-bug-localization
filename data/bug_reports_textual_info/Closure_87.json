@@ -1,0 +1,118 @@
+{
+    "id": 291,
+    "status": "Fixed",
+    "summary": "IE8 error: Object doesn't support this action",
+    "labels": [
+        "Type-Defect",
+        "Priority-Medium"
+    ],
+    "stars": 2,
+    "commentCount": 15,
+    "comments": [
+        {
+            "id": 0,
+            "commenterId": -718334832621495367,
+            "content": "<b>What steps will reproduce the problem?</b>\n1. Use script with fragment like\r\n    if (e.onchange) {\r\n      e.onchange({\r\n        _extendedByPrototype: Prototype.emptyFunction,\r\n        target: e\r\n      });\r\n    }\r\n2. Compile with Compiler (command-line, latest version)\r\n3. Use in IE8\r\n\r\nWhat is the expected output?\r\nScript:\r\nif(b.onchange){b.onchange({_extendedByPrototype:Prototype.emptyFunction,target\r\n:b})}\r\n\r\nWhat do you see instead?\r\nScript:\r\nb.onchange&amp;&amp;b.onchange({_extendedByPrototype:Prototype.emptyFunction,target\r\n:b})\r\nIE8:\r\nError message &quot;Object doesn't support this action&quot;\r\n\r\n<b>What version of the product are you using? On what operating system?</b>\nVersion: 20100917 (revision 440)\r\nBuilt on: 2010/09/17 17:55\r\n",
+            "timestamp": 1291655138,
+            "attachments": []
+        },
+        {
+            "id": 1,
+            "commenterId": -5060162230523776870,
+            "content": "Can you provide more details here?  I'm unable to reproduce a problem in IE8 with \"b.onchange && b.onchange(...\"",
+            "timestamp": 1291666739,
+            "attachments": []
+        },
+        {
+            "id": 2,
+            "commenterId": -718334832621495367,
+            "content": "I use third-party javascript library, which assigns event handler to element.onchange property (e.g. $('id').onchange=function(event){...}). In other part of library this onchange handler is invoked directly after changing content of element, using fake event object:\r\n\r\n  e.value = 'some value';\r\n  if (e.onchange) {\r\n    e.onchange({\r\n      _extendedByPrototype: Prototype.emptyFunction,\r\n      target: e\r\n    });\r\n  }\r\n\r\nSo IE7 and IE8 (and maybe IE6) executes script\r\n  if (e.onchange) {e.onchange(...);}\r\nbut fires error \"Object doesn't support this action\" on optimized script\r\n  e.onchange&&e.onchange(...);\r\n",
+            "timestamp": 1291711173,
+            "attachments": []
+        },
+        {
+            "id": 3,
+            "commenterId": -5060162230523776870,
+            "content": "Can you provide a small program that demonstrates this?\r\n\"e.onchange()\" should not be called in either case.  Maybe the problem is elsewhere?\r\n\r\nHere is what I used to try to reproduce the problem:\r\n\r\n\r\n<html>\r\n<head>\r\n<script>\r\nsetTimeout(function () {\r\n\r\nvar e = document.getElementById('foo');\r\nif (e) {\r\n  alert('ok')\r\n}\r\n\r\nif (e.onchange && e.onchange({ext: function(){}, target: e})) {\r\n  alert('unexpected');\r\n} else {\r\n  alert('ok');\r\n}\r\n\r\ne.onchange = function() {return true};\r\nif (e.onchange && e.onchange({ext: function(){}, target: e})) {\r\n  alert('ok');\r\n} else {\r\n  alert('unexpected');\r\n}\r\n\r\n}, 100);\r\n</script>\r\n</head>\r\n<body>\r\n\r\n<div id=\"foo\"></div>\r\n\r\nSome text.\r\n\r\n</body>\r\n</html>",
+            "timestamp": 1291749399,
+            "attachments": []
+        },
+        {
+            "id": 4,
+            "commenterId": 4702807444149765156,
+            "content": "Comment deleted",
+            "timestamp": 1291897490,
+            "attachments": []
+        },
+        {
+            "id": 5,
+            "commenterId": 4702807444149765156,
+            "content": "Comment 4 by lior.berry, Today (16 minutes ago)\r\n\r\nI encountered a similar error in IE 8, when trying to use swfobject.js (http://ajax.googleapis.com/ajax/libs/swfobject/2.1/swfobject.js) that I compiled with the closure compiler.\r\n\r\nI am getting the following error in IE8 only: \r\n\r\nMessage: Unexpected call to method or property access.\r\nLine: 10\r\nChar: 285\r\nCode: 0\r\nURI: http://myserveraddress/swfobject_2_1-compiled.js\r\n\r\nIf I use the non-compiled version of the script it works fine. In addition, compiling version 2.2 of swfobject.js also works fine, so maybe diffing the two versions can help you narrow down the problem\r\n\r\nThis is the html code I use:\r\n\r\n<html>\r\n<head>\r\n<script src=\"./swfobject_2_1-compiled.js\" type=\"text/javascript\"></script>\r\n</head>\r\n<body>\r\n<h1>testing ...</h1>\r\n<script type=\"text/javascript\"> \r\nswfobject.embedSWF(\"player.swf\",\"player_placeholder\", \"480\", \"360\", \"9.0.115\", false,\r\n{}, {},{});\r\n</script>\r\n</body>\r\n</html>\r\n",
+            "timestamp": 1291898511,
+            "attachments": []
+        },
+        {
+            "id": 6,
+            "commenterId": -718334832621495367,
+            "content": "Here is an example (clicking on 'Test' button causes error in IE6-8):\r\n\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n  <head>\r\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\r\n    <title>onchange</title>\r\n    <script type=\"text/javascript\">\r\n      function testOnchange() {\r\n        var s = document.getElementById(\"select\");\r\n        s &&\r\n        s.onchange({\r\n          ext: function() {\r\n          },\r\n          target: s\r\n        });\r\n      }\r\n    </script>\r\n  </head>\r\n  <body>\r\n    <form id=\"form\" action=\"#\">\r\n      <select id=\"select\">\r\n        <option>1</option>\r\n        <option>2</option>\r\n      </select>\r\n      <input type=\"button\" value=\"Test\" onclick=\"testOnchange();\"/>\r\n    </form>\r\n    <script type=\"text/javascript\">\r\n      var s = document.getElementById(\"select\");\r\n      s.onchange = function(e) {\r\n        alert(\"Changed to \" + e.target.value);\r\n      };\r\n    </script>\r\n  </body>\r\n</html>\r\n",
+            "timestamp": 1292256639,
+            "attachments": []
+        },
+        {
+            "id": 7,
+            "commenterId": -5060162230523776870,
+            "content": "Maybe specific to the \"select\" element in IE.",
+            "timestamp": 1292293253,
+            "attachments": []
+        },
+        {
+            "id": 8,
+            "commenterId": -718334832621495367,
+            "content": "And what to do now?\r\n\r\nUse older versions of compiler (and wait for new release)?\r\n\r\nDo not use compiler at all (you'll never fix it)?\r\n\r\nOr somehow tell him not to \"optimize\" expressions of type \"if (object.method){object.method();}\"?",
+            "timestamp": 1292326587,
+            "attachments": []
+        },
+        {
+            "id": 9,
+            "commenterId": -718334832621495367,
+            "content": "By the way, it happens not only on select fields - also on text inputs (input type=\"text\").",
+            "timestamp": 1292326784,
+            "attachments": []
+        },
+        {
+            "id": 10,
+            "commenterId": -7699928860083865744,
+            "content": "I'm not convinced that it's as simple as escaping that one optimization. I think we need to have a better handle on why IE does this, so we know how to work around it in other cases.",
+            "timestamp": 1292339659,
+            "attachments": []
+        },
+        {
+            "id": 11,
+            "commenterId": -7699928860083865744,
+            "content": "i've narrowed vkhomyackov's testOnchange down to this:\r\n    <script type=\"text/javascript\">\r\n      function testOnchange() {\r\n        var s = document.getElementById(\"select\");\r\n        1 && s.onchange({});\r\n      }\r\n    </script>\r\n\r\nthe \"1 &&\" and the object literal are both necessary. removing the bug go away. Notably, the bug does not appear if you have:\r\n\r\n        1 && (s.onchange({}), 0);\r\n\r\nSomehow it's contingent on the return value of s.onchange being consumed by another expression. The bug also reproduces if you have:\r\n\r\n        return s.onchange({});",
+            "timestamp": 1292340733,
+            "attachments": []
+        },
+        {
+            "id": 12,
+            "commenterId": -7699928860083865744,
+            "content": "after a few more tests, here's my half-assed theory of what's happening:\r\n\r\nIn IE, Nodes are implemented as COM objects. I assume that these COM objects have some special logic for event handler properties (like 'onchange'), because foo.onchange = \"some string\"; will convert the string into a function. So perhaps they have some internal pointers to those functions.\r\n\r\nLet's also suppose that COM objects have some logic for doing overloaded method dispatch.\r\n\r\nFor some reason, calling s.onchange({}) and using its return value triggers a bug in the overloaded method dispatcher, which makes it call native method, instead of the method on the internal pointer.\r\n\r\nAgain, this is all very much guess-work, and is probably wrong on some key points (if not all of them). But the explanation is consistent with the behavior I'm seeing. It only happens when both the return value and parameter are used (regardless of what they are or how they're used), and I can't repro with any methods that aren't event handlers.\r\n\r\nIt may be enough to add a shim to check for this specific case.\r\n\r\nFortunately, the bug is not in IE9. But if I ever run into one of the IE engineers i may ask them about it.",
+            "timestamp": 1292357633,
+            "attachments": []
+        },
+        {
+            "id": 13,
+            "commenterId": -7699928860083865744,
+            "content": "This issue was closed by revision r631.",
+            "timestamp": 1292423259,
+            "attachments": []
+        },
+        {
+            "id": 14,
+            "commenterId": -5060162230523776870,
+            "content": "Issue 371 has been merged into this issue.",
+            "timestamp": 1299276447,
+            "attachments": []
+        }
+    ]
+}

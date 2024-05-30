@@ -1,0 +1,34 @@
+{
+    "id": 925,
+    "status": "Fixed",
+    "summary": "if statement",
+    "labels": [
+        "Type-Defect",
+        "Priority-Medium"
+    ],
+    "stars": 0,
+    "commentCount": 3,
+    "comments": [
+        {
+            "id": 0,
+            "commenterId": -371700192036501400,
+            "content": "<b>What steps will reproduce the problem?</b>\nINPUT:\r\nif( es[--esi][ es[esi+1] ] === 1)\r\n{\r\n\tes[esi] = 0;\r\n}\r\nelse\r\n{\r\n\tes[esi] = 1;\r\n}\r\nOUTPUT:\r\n\r\nes[esi] = 1 === es[--esi][es[esi + 1]] ? 0 : 1;\r\n\r\nBUT MUST BE\r\nes[--esi] = 1 === es[esi][es[esi + 1]] ? 0 : 1;\r\n\r\nIm using latest version on windows\r\n",
+            "timestamp": 1361548334,
+            "attachments": []
+        },
+        {
+            "id": 1,
+            "commenterId": -5060162230523776870,
+            "content": "Thank you for the report.",
+            "timestamp": 1361570288,
+            "attachments": []
+        },
+        {
+            "id": 2,
+            "commenterId": -8769171937076622550,
+            "content": "This issue was closed by revision 5b9485903b5e.",
+            "timestamp": 1361822944,
+            "attachments": []
+        }
+    ]
+}

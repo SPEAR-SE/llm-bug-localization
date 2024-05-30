@@ -1,0 +1,6 @@
+
+
+given e.g. variable d=
+{"a", "b"}
+, the spec implies that "$d = 'a'" and that "$d = 'b'".  Instead of iterating the variable's components its immediate content (here, the String[]) is compared, causing the aforementioned assertions to fail.
+

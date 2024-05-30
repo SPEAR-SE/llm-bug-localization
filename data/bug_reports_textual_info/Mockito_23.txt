@@ -1,0 +1,87 @@
+
+
+Hey
+I found a strange problem, when i create a abstract class:
+abstract class AbstractClass {
+    abstract protected Long lol();
+    abstract protected String wow();
+    public String give() {
+        wow();
+        lol();
+        return "give";
+    }
+}
+and i have another class extends abstract Class:
+public class ClassExtendsAbstractClass extends AbstractClass {
+@Override
+ protected Long lol() {
+        return 2L;
+    }
+    @Override
+    protected String wow() {
+        return "WOW";
+    }
+}
+and I have class:
+public class A {
+  private ClassExtendsAbstractClass classExtendsAbstractClass;
+  public A(ClassExtendsAbstractClass classExtendsAbstractClass) {
+    this.classExtendsAbstractClass = classExtendsAbstractClass;
+  }
+  public String doSomeThing(){
+    return classExtendsAbstractClass.wow();
+  }
+}
+and when i try mock method doSomeThing() from A class in test:
+  @Mock
+  private ClassExtendsAbstractClass classExtendsAbstractClass;
+  private A a;
+
+  @Before
+  public void before(){
+    Mockito.when(classExtendsAbstractClass.give()).thenReturn("aaa");
+  }
+  @Test
+  public void test() {
+    a = new A(classExtendsAbstractClass);
+  }
+I get the error:
+
+org.mockito.exceptions.misusing.WrongTypeOfReturnValue:
+String cannot be returned by lol()
+lol() should return Long
+
+This is strange behavior, because the method lol() should not be called, but when I delete one abstract method everything is good.
+
+
+
+Have you tried updating to the latest beta? We changed the byte code provider so this might already be resolved.
+
+
+
+I using 2.0.2- beta from maven repository: http://mvnrepository.com/artifact/org.mockito/mockito-all/2.0.2-beta
+
+
+
+We are currentlz at beta 2.0.50. I also just ran your example and everything seems to be fine.
+
+
+
+When i try use 2.0.50-beta from i have error:
+
+java.lang.NoClassDefFoundError: org/mockito/cglib/proxy/Callback
+Caused by: java.lang.ClassNotFoundException: org.mockito.cglib.proxy.Callback
+
+
+
+
+Seems like you have different mockito versions in your project. The current version does no longer depend on cglib. (did you recompile your test classes?)
+
+
+
+I had dependency to powermock-api-mockito that created the problem . Now everything is working properly
+
+
+
+Perfect, thanks for reporting this back.
+

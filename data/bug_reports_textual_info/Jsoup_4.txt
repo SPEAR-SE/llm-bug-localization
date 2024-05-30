@@ -1,0 +1,23 @@
+
+
+The line
+System.out.println(Jsoup.clean("<h1>Überschrift</h1>", Whitelist.none()));
+
+should print
+&Uuml;berschrift
+
+but prints
+&uuml;berschrift
+
+This used to work correctly in v0.3.1, but fails in v1.2.3.
+While baseArray in Entities.java distinguishes between lowercase and uppercase umlauts, the above call yields the wrong result.
+
+
+
+Thanks for reporting this -- I'll fix it for the next release.
+
+
+
+Fixed support for case-sensitive HTML escape entities.
+Closed by 17d07c5
+

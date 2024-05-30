@@ -1,0 +1,8 @@
+
+
+Looks like type id (name) matching base type is included in type resolution list, automatically. While this might be useful sometimes it seems quite odd, and probably should only be included if:
+
+Base type is concrete and
+Base type has explicit name (not add if default name used)
+
+

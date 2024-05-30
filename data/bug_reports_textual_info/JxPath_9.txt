@@ -1,0 +1,4 @@
+
+
+'NaN' > 'NaN' is true, but should be FALSE
+

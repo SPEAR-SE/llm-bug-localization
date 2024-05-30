@@ -1,0 +1,15 @@
+
+
+Some html entities (such as sup1, sup2) are not unescaped correctly by Entities.unescape because they contain digits.
+The problem is the pattern Entities.unescapePattern. I changed it to '&(#(x|X)?([0-9a-fA-F]+)|[0-9a-zA-Z]+);?', and it worked fine for me. But there might be side effects ...
+You can see my changes here : clementdenis@d65387c
+
+
+
+Thanks for finding this.
+
+
+
+Fixed support for HTML entities with numbers in name (e.g. &frac34, &sup1)
+Closed by 6d48121
+

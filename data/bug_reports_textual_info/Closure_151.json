@@ -1,0 +1,47 @@
+{
+    "id": 74,
+    "status": "Fixed",
+    "summary": "Add a --version option for the compiler.",
+    "labels": [
+        "Type-Enhancement",
+        "Priority-Medium"
+    ],
+    "stars": 4,
+    "commentCount": 4,
+    "comments": [
+        {
+            "id": 0,
+            "commenterId": -2689775667758751517,
+            "content": "<b>What steps will reproduce the problem?</b>\n1. Run java -jar compiler.jar --version\r\n\r\n<b>What is the expected output? What do you see instead?</b>\nExpected: A version statement.\r\nActual: An error that --version is not supported.\r\n\r\n<b>What version of the product are you using? On what operating system?</b>\nSee above. This is a compiler.jar I downloaded from this project (didn't \r\nbuild it myself), file is dated 04/12/2009.\r\nOn Windows XP.\r\n\r\n<b>Please provide any additional information below.</b>\nThis information doesn't seem to be given anywhere, don't see it on --help \r\neither.\r\n\r\nThis is an enhancement request, not a bug report.\r\n",
+            "timestamp": 1260464630,
+            "attachments": []
+        },
+        {
+            "id": 1,
+            "commenterId": -7699928860083865744,
+            "content": "there's got to be some Ant magic to do this at build time. the only reason it's not \r\ndone is because our Ant skills are weak. Hrmmm... ",
+            "timestamp": 1260483409,
+            "attachments": []
+        },
+        {
+            "id": 2,
+            "commenterId": -2689775667758751517,
+            "content": "Yes, ant can help here. There's a `buildnumber` task that will increment a number in a \r\nplain file, or the `propertyfile` task that can do more sophisticated things; example \r\nof the latter attached, which you can very nearly just drop into your existing build \r\nfile. More here:\r\nhttp://ant.apache.org/manual/OptionalTasks/propertyfile.html",
+            "timestamp": 1260536356,
+            "attachments": [
+                {
+                    "id": -8328038564774399185,
+                    "fileName": "build.xml",
+                    "fileSize": 1101
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "commenterId": -7699928860083865744,
+            "content": "This issue was closed by revision r440.",
+            "timestamp": 1284760362,
+            "attachments": []
+        }
+    ]
+}

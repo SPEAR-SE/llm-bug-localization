@@ -1,0 +1,61 @@
+
+
+Using jsoup 1.6.3, the following snippet
+System.out.println(
+  Jsoup.parse(
+    "<?xml encoding='UTF-8' version='1.0'?>" +
+    "<html>" +
+    "<head><title></title></head>" +
+    "<body>Document content</body>" +
+    "</html>").outerHtml());
+prints :
+<!--?xml encoding='UTF-8' version='1.0'?-->
+<html>
+ <head>
+  <title></title>
+ </head>
+ <body>
+  Document content
+ </body>
+</html>
+while I expect :
+<?xml encoding='UTF-8' version='1.0'?>
+<html>
+ <head>
+  <title></title>
+ </head>
+ <body>
+  Document content
+ </body>
+</html>
+
+
+
+This is actually the expected behavior of jsoup as you are parsing HTML code using the HTML parser. If you need to parse XML, you must use e.g.:
+Jsoup.parse(my-xml-text, "", Parser.xmlParser());
+
+
+
+If my suggestion solved your problem, you could close this issue. It helps the developer keep the focus .:-)
+
+
+
+Yes, problem solved for me, thanks!
+
+
+
+Actually, I still see this issue while using the XML parser.
+
+
+
+Using jsoup 1.6.3 or 1.7.1
+The following test failed for me:
+@Test
+public void xmlParserTest() {
+    String html = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><body>One</body><!-- comment -->";
+    Document doc = Jsoup.parse(html, "", Parser.xmlParser());
+    assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?> <body> One </body> <!-- comment -->",
+        StringUtil.normaliseWhitespace(doc.outerHtml()));
+}
+
+

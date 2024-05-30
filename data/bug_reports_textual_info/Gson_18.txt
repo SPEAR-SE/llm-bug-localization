@@ -1,0 +1,30 @@
+
+
+This issue is a successor to #1101.
+Models:
+// ? extends causes the issue
+class BigClass { Map<String, ? extends List<SmallClass>> inBig; }
+
+class SmallClass { String inSmall; }
+Json:
+{
+  "inBig": {
+    "key": [
+      { "inSmall": "hello" }
+    ]
+  }
+}
+Gson call:
+SmallClass small = new Gson().fromJson(json, BigClass.class).inBig.get("inSmall").get(0);
+This call will fail with a ClassCastException exception –
+com.google.gson.internal.LinkedTreeMap cannot be cast to Entry. If we remove ? extends then everything works fine.
+
+
+
+was this ever fixed/released? I still see the problem even on v2.8.5
+
+
+
+Could you please test if this still occurs with the latest Gson version? I think #1146 should have fixed this. At least the originally provided sample code seems to work, except that the member name seems to be incorrect: fromJson(json, BigClass.class).inBig.get("inSmallkey").get(0)
+If you still experience this please provide a small self contained example, and mention which Gson version you are using.
+

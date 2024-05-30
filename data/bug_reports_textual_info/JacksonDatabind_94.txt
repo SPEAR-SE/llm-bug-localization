@@ -1,0 +1,58 @@
+
+
+From an email report there are 2 other c3p0 classes (above and beyond ones listed in #1737) need to be blocked.
+EDIT 21-Jun-2021: Fix included in:
+
+2.9.5
+2.8.11.1
+2.7.9.3
+2.6.7.5
+
+
+
+
+Fixed in 2.8.11.1 (newly released) and 2.9.5 (when it is released)
+
+
+
+Hi there!
+How comes that there is no atifact in http://repo1.maven.org/maven2/com/fasterxml/jackson/jackson-bom/ that is matching release 2.8.11.1?
+This is preventing me from upgrading to 2.8.11.1 because that artifact would be required by Spring boots dependency management.
+Thanks in advance!
+
+
+
+@philippn Because beyond 2.8.11.1 there is no full release, and it is not really practical to create one-off bom sets: there may or may not be micro-patches for various components.
+What you need to do is to either use 2.8.11 bom and overrides (re-define one of version properties) or add explicit direct dependency. Alternatively you could probably build a separate bom of your own, one that extends jackson-bom-2.8.11.
+
+
+
+Thanks for the clarification!
+
+
+
+@philippn np. And apologies for the mess. I understand it is not ideal, and I am hoping we can figure out a more maintainable system for CVE updates.
+
+
+
+For further info: https://medium.com/@cowtowncoder/on-jackson-cves-dont-panic-here-is-what-you-need-to-know-54cd0d6e8062
+
+
+
+Vuln reported as: https://access.redhat.com/security/cve/cve-2018-7489
+
+
+
+Hi! Any estimates for a 2.9.5 release? Thanks!
+
+
+
+Hi FasterXML Team ,
+As new vulnerability CVE-2018-7489 is reported  and we are using jackson-databind 2.9.4 version which is now vulnerable. Please confirm us when we can get full new release like 2.9.5  or patch fix in v2.9.4.1 which will help to get rid of this vulnerability.
+-thanks
+Dharmendra
+
+
+
+Is this defect applicable for org.codehaus.jackson libraries too?
+

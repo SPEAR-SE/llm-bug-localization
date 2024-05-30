@@ -56,8 +56,8 @@ def read_tests_file(file_path):
     test_results = []
     tests_file = os.path.join(file_path, "SBEST_test_results.csv")
     if not os.path.exists(tests_file):
-        tests_file = os.path.join(file_path, "SBEST_test_results.csv")
-    with open(os.path.join(file_path, "test_results_original_ochiai.csv"), 'r') as file:
+        tests_file = os.path.join(file_path, "test_results_original_ochiai.csv")
+    with open(tests_file, 'r') as file:
         content = file.read().replace('\0', '')
         csv_reader = csv.reader(content.splitlines())
         for row in csv_reader:
@@ -92,7 +92,7 @@ def checkout_commit(repo_path, commit_hash):
 
 def find_member_and_next(file_path, class_name, member_name):
     """Find the specified method or constructor and the next member in the file."""
-    print (file_path)
+    print(file_path)
     print(class_name)
     print(member_name)
     with open(file_path, 'r') as file:
@@ -157,7 +157,8 @@ def construct_file_path(base_path, package_name, class_name):
     """Construct the file path for a Java class based on package and class name, allowing for flexible filename matching."""
     package_path = package_name.replace('.', '/')
     filename_pattern = f"{class_name}.java"
-    possible_base_dirs = ['src', 'src/java', 'src/test', 'src/main/java', 'gson/src/main/java', 'src/test/java', 'test/org']
+    possible_base_dirs = ['src', 'src/java', 'src/test', 'src/main/java', 'gson/src/main/java', 'src/test/java',
+                          'test/org']
 
     for base_dir in possible_base_dirs:
         search_path = os.path.join(base_path, base_dir, package_path, '**', filename_pattern)
@@ -176,3 +177,66 @@ def json_file_to_dict(file_path):
         data = json.load(fp)
     fp.close()
     return data
+
+
+def save_raw_output(output, file_path):
+    # Create the directory if it doesn't exist
+    dir_path = os.path.dirname(file_path)
+    os.makedirs(dir_path, exist_ok=True)
+
+    with open(file_path, "w") as f:
+        json.dump(output, f, indent=4)
+
+
+def is_duplicate(new_obj, existing_objects):
+    # Check if new_obj is in existing_objects based on 'test_id' and 'method_signatures'
+    for obj in existing_objects:
+        if obj['test_id'] == new_obj['test_id'] and set(obj['method_signatures']) == set(new_obj['method_signatures']):
+            return True
+    return False
+
+
+def parse_and_save_methodsig_json_2(contents, project_name, bug_id, path):
+    json_objects = []
+    code_blocks = re.findall(r'```json\n([\s\S]*?)\n```', contents)
+
+    for block in code_blocks:
+        try:
+            json_obj = json.loads(block)
+            if not is_duplicate(json_obj, json_objects):
+                json_objects.append(json_obj)
+        except json.JSONDecodeError:
+            continue  # Skip blocks that cannot be parsed as JSON
+
+    # Handle the case where no valid JSON objects are found
+    if json_objects:
+        # If there's only one object, use it directly; otherwise, use the whole list
+        final_json = json_objects[0] if len(json_objects) == 1 else json_objects
+    else:
+        # Initialize as an empty dict or with default structure when no data is found
+        final_json = {
+            "project_name": project_name,
+            "bug_id": bug_id,
+            "method_signatures": [],
+            "final_ans": contents
+        }
+
+    # Assign additional properties to the final_json
+    if isinstance(final_json, dict):
+        final_json['project_name'] = project_name
+        final_json['bug_id'] = bug_id
+        final_json['final_ans'] = contents
+
+    # Define the output file path
+    file_path = path
+
+    # Create the directory if it doesn't exist
+    dir_path = os.path.dirname(file_path)
+    os.makedirs(dir_path, exist_ok=True)
+
+    # Write the combined data to the file
+    with open(file_path, "w") as json_file:
+        json.dump(final_json, json_file, indent=4)
+
+    print(f"Data saved to {file_path}")
+    return file_path

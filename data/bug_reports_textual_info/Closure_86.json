@@ -1,0 +1,34 @@
+{
+    "id": 303,
+    "status": "Fixed",
+    "summary": "side-effects analysis incorrectly removing function calls with side effects",
+    "labels": [
+        "Type-Defect",
+        "Priority-Critical"
+    ],
+    "stars": 1,
+    "commentCount": 3,
+    "comments": [
+        {
+            "id": 0,
+            "commenterId": -7699928860083865744,
+            "content": "Sample Code:\r\n---\r\n/** @constructor */\r\nfunction Foo() {\r\n  var self = this;\r\n  window.setTimeout(function() {\r\n    window.location = self.location;\r\n  }, 0);\r\n}\r\n\r\nFoo.prototype.setLocation = function(loc) {\r\n  this.location = loc;\r\n};\r\n\r\n(new Foo()).setLocation('http://www.google.com/');\r\n---\r\n\r\nThe setLocation call will get removed in advanced mode.",
+            "timestamp": 1292626207,
+            "attachments": []
+        },
+        {
+            "id": 1,
+            "commenterId": -7699928860083865744,
+            "content": "",
+            "timestamp": 1292626222,
+            "attachments": []
+        },
+        {
+            "id": 2,
+            "commenterId": 1328304962299559429,
+            "content": "This issue was closed by revision r647.",
+            "timestamp": 1292644191,
+            "attachments": []
+        }
+    ]
+}

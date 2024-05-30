@@ -1,0 +1,48 @@
+
+
+Hi Szczepan,
+Thanks for the reply, I'll simplify the methods now - do I open a new pull request, or somehow edit this one?  Sorry - I'm new to GitHub and Git!
+I haven't used a custom VerificationMode in anger yet, I'm actually writing a tutorial on Mockito and wanted to show one as an example.  The one I wrote would verify that an invocation was the first invocation on a Mock, and I had a lot of hair pulling when the .equals() of my chunk and all invocations didn't evaluate to true, even though it was the same object!
+Regards,
+Hugh
+
+
+
+VerificationMode is not a public API. Devs are welcome to use it and tell us about the use cases :)
+It does have strict backwards-compatibility constraints. Other words, we can change it without notice. However, we do plan to publicize this API. If only there were more days in a week :)
+Update this PR or create a new one. Whatever is simpler for you.
+Thanks again!
+
+
+
+Not sure why this failed to build - the tests are passing locally.
+Thanks for the info about VerificationMode - I'll stick a health warning in the tutorial for that section!
+
+
+
+The build failed due to a flaky test, don't worry about it.
+
+
+
+Updated again, I was a bit trigger happy with the commit! Hopefully that's it! :)
+
+
+
+Oh, right, I'm merging it, let's see if continuous deployment actually works... :)
+
+
+
+FYI: your change is already released: https://github.com/mockito/mockito/blob/master/doc/release-notes/official.md
+
+
+
+That's pretty cool! Thanks for letting me know!
+On 26 Sep 2014 17:41, "Szczepan Faber" notifications@github.com wrote:
+
+FYI: your change is already released:
+https://github.com/mockito/mockito/blob/master/doc/release-notes/official.md
+—
+Reply to this email directly or view it on GitHub
+#87 (comment).
+
+

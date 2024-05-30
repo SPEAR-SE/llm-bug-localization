@@ -1,0 +1,34 @@
+{
+    "id": 383,
+    "status": "Fixed",
+    "summary": "\\0 \\x00 and \\u0000 are translated to null character",
+    "labels": [
+        "Type-Defect",
+        "Priority-High"
+    ],
+    "stars": 1,
+    "commentCount": 3,
+    "comments": [
+        {
+            "id": 0,
+            "commenterId": -2088104242205398342,
+            "content": "<b>What steps will reproduce the problem?</b>\n1. write script with string constant &quot;\\0&quot; or &quot;\\x00&quot; or &quot;\\u0000&quot;\r\n\r\n<b>What is the expected output? What do you see instead?</b>\nI expected a string literal with &quot;\\0&quot; (or something like that)\r\nand instead get a string literal with three null character values.\r\n\r\n<b>What version of the product are you using? On what operating system?</b>\ncompiler-20110119.zip on windows 7 x64\r\n\r\n<b>Please provide any additional information below.</b>\n\r\nThis is causing an issue with IE9 and jQuery.getScript. It causes IE9 to interpret the null character as the end of the file instead of a null character.",
+            "timestamp": 1300293173,
+            "attachments": []
+        },
+        {
+            "id": 1,
+            "commenterId": -5060162230523776870,
+            "content": "",
+            "timestamp": 1300396080,
+            "attachments": []
+        },
+        {
+            "id": 2,
+            "commenterId": 1328304962299559429,
+            "content": "This issue was closed by revision r904.",
+            "timestamp": 1300417946,
+            "attachments": []
+        }
+    ]
+}

@@ -1,0 +1,41 @@
+{
+    "id": 174,
+    "status": "Fixed",
+    "summary": "bad variable inlining in closure",
+    "labels": [
+        "Type-Defect",
+        "Priority-High"
+    ],
+    "stars": 6,
+    "commentCount": 4,
+    "comments": [
+        {
+            "id": 0,
+            "commenterId": -7699928860083865744,
+            "content": "\r\n// ==ClosureCompiler==\r\n// @compilation_level SIMPLE_OPTIMIZATIONS\r\n// @output_file_name default.js\r\n// @formatting pretty_print\r\n// ==/ClosureCompiler==\r\n\r\nfunction foo() {\r\n var arr = [1, 2, 3, 4, 5];\r\n for (var i = 0, l = arr.length; i &lt; l; i++) {\r\n   var j = arr[i];\r\n   (function() {\r\n     var k = j;\r\n     setTimeout(function() { console.log(k); }, 0);\r\n   })();\r\n }\r\n}\r\nfoo();\r\n\r\n&quot;k&quot; will get incorrectly inlined.",
+            "timestamp": 1276019292,
+            "attachments": []
+        },
+        {
+            "id": 1,
+            "commenterId": 6454800031398885070,
+            "content": "Clearly a problem with InlineVariables",
+            "timestamp": 1276051793,
+            "attachments": []
+        },
+        {
+            "id": 2,
+            "commenterId": -7699928860083865744,
+            "content": "yep. i know the exact problem. i'll have a patch tomorrow.",
+            "timestamp": 1276051954,
+            "attachments": []
+        },
+        {
+            "id": 3,
+            "commenterId": -7699928860083865744,
+            "content": "This issue was closed by revision r241.",
+            "timestamp": 1276200762,
+            "attachments": []
+        }
+    ]
+}

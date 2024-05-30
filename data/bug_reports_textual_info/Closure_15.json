@@ -1,0 +1,48 @@
+{
+    "id": 773,
+    "status": "Fixed",
+    "summary": "Switched order of \"delete key\" and \"key in\" statements changes semantic",
+    "labels": [
+        "Type-Defect",
+        "Priority-Medium"
+    ],
+    "stars": 0,
+    "commentCount": 5,
+    "comments": [
+        {
+            "id": 0,
+            "commenterId": -6885360950181397962,
+            "content": "// Input:\r\n\r\nvar customData = { key: 'value' };\r\n\r\nfunction testRemoveKey( key ) {\r\n\tvar dataSlot = customData,\r\n\t\tretval = dataSlot &amp;&amp; dataSlot[ key ],\r\n\t\thadKey = dataSlot &amp;&amp; ( key in dataSlot );\r\n\r\n\tif ( dataSlot )\r\n\t\tdelete dataSlot[ key ];\r\n\r\n\treturn hadKey ? retval : null;\r\n};\r\n\r\nconsole.log( testRemoveKey( 'key' ) ); // 'value'\r\nconsole.log( 'key' in customData ); // false\r\n\r\n\r\n// Compiled version:\r\n\r\nvar customData={key:&quot;value&quot;};function testRemoveKey(b){var a=customData,c=a&amp;&amp;a[b];a&amp;&amp;delete a[b];return a&amp;&amp;b in a?c:null}console.log(testRemoveKey(&quot;key&quot;));console.log(&quot;key&quot;in customData);\r\n\r\n// null\r\n// false\r\n\r\n\r\n&quot;b in a&quot; is executed after &quot;delete a[b]&quot; what obviously doesn't make sense in this case.\r\n\r\n\r\nReproducible on: http://closure-compiler.appspot.com/home and in &quot;Version: 20120430 (revision 1918) Built on: 2012/04/30 18:02&quot;",
+            "timestamp": 1341844793,
+            "attachments": []
+        },
+        {
+            "id": 1,
+            "commenterId": -7699928860083865744,
+            "content": "ack. thanks for the report",
+            "timestamp": 1341848778,
+            "attachments": []
+        },
+        {
+            "id": 2,
+            "commenterId": -7699928860083865744,
+            "content": "john figured this out first.",
+            "timestamp": 1341866393,
+            "attachments": []
+        },
+        {
+            "id": 3,
+            "commenterId": -7699928860083865744,
+            "content": "This issue was closed by revision r2079.",
+            "timestamp": 1341936108,
+            "attachments": []
+        },
+        {
+            "id": 4,
+            "commenterId": -6885360950181397962,
+            "content": "Thanks for quick patch :).",
+            "timestamp": 1342427449,
+            "attachments": []
+        }
+    ]
+}

@@ -1,0 +1,38 @@
+
+
+Ok, so in mail type HTML the following is common
+
+The item after CID: can be almost anything (US-ASCII I think) and of any length. It corresponds to an image linked elsewhere in MIME say like this
+--mimebounday
+Content-ID:
+Content-Type: image/jpeg.....
+(snip)
+So, to mark a long story somewhat shorter, I use Jsoup's sanitizer extensively. However, I need these CID references to be preserved post sanitization. addProtocols does not work because the items are not valid URLs. As a result
+the above becomes . Which for my purposes is not good :)
+
+
+
+see http://xml.resource.org/public/rfc/html/rfc2392.html
+for description of the cid protocol schema, which is an internet standard. I suspect mailto could also not be unsanitized, but haven't tried it.
+
+
+
+Related to this the data uri is also sanitized and cannot be whitelisted.
+
+
+
+So I've worked around this in a lame fashion
+
+use jsoup to parse
+find all cid: refs in img tags
+replace them with http://contentid.com/
+sanitize
+find all  http://contentid.com/ refs
+replace with data uris
+
+but the issue with mailto, cid, and data really should be somehow addressable. I grant you they are abusable tags and ones that should not be whitelisted lightly
+
+
+
+Thanks for suggesting this!
+

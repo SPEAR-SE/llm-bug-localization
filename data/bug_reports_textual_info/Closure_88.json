@@ -1,0 +1,41 @@
+{
+    "id": 297,
+    "status": "Fixed",
+    "summary": "Incorrect assignment removal from expression in simple mode.",
+    "labels": [
+        "Type-Defect",
+        "Priority-High"
+    ],
+    "stars": 2,
+    "commentCount": 4,
+    "comments": [
+        {
+            "id": 0,
+            "commenterId": 6454800031398885070,
+            "content": "function closureCompilerTest(someNode) {\r\n   var nodeId;\r\n   return ((nodeId=someNode.id) &amp;&amp; (nodeId=parseInt(nodeId.substr(1))) &amp;&amp; nodeId&gt;0);\r\n}\r\n\r\nCOMPILES TO:\r\n\r\nfunction closureCompilerTest(b){var a;return b.id&amp;&amp;(a=parseInt(a.substr(1)))&amp;&amp;a&gt;0};\r\n\r\n&quot;nodeId=someNode.id&quot; is replaced with simply &quot;b.id&quot; which is incorrect as the value of &quot;nodeId&quot; is used.",
+            "timestamp": 1292344685,
+            "attachments": []
+        },
+        {
+            "id": 1,
+            "commenterId": -5060162230523776870,
+            "content": "",
+            "timestamp": 1292344719,
+            "attachments": []
+        },
+        {
+            "id": 2,
+            "commenterId": -5060162230523776870,
+            "content": "A problem in the DeadAssignmentElimination pass.",
+            "timestamp": 1292346964,
+            "attachments": []
+        },
+        {
+            "id": 3,
+            "commenterId": -7699928860083865744,
+            "content": "This issue was closed by revision r629.",
+            "timestamp": 1292423048,
+            "attachments": []
+        }
+    ]
+}

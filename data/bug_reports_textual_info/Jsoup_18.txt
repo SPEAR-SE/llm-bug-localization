@@ -1,0 +1,25 @@
+
+
+I think this is a bug.
+Version: jsoup-1.6.0.jar
+Source:
+---------BEGIN
+<img alt=""
+         src="/imagelibraries/homepagebanners/british_10k_2010.jpg" />
+
+---------END
+Steps to reproduce: element.outerHtml() ->
+Expected result: two attributes alt and src
+Observed result output
+----------BEGIN
+<img alt="" ="" src="/imagelibraries/homepagebanners/british_10k_2010.jpg" />
+----------END
+
+
+
+Thanks for pointing this out! Newlines were correctly being ignored in tags, but carriage returns were not being normalised correctly.
+
+
+
+Great work - thanks a lot! Great library btw.
+

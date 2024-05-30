@@ -1,0 +1,477 @@
+
+
+In version 1.10.5, the catch block needs to guard against a null proxyInstance:
+java.lang.NullPointerException
+at org.mockito.internal.creation.jmock.ClassImposterizer.imposterise(ClassImposterizer.java:65)
+at org.powermock.api.mockito.internal.mockcreation.MockCreator.createMethodInvocationControl(MockCreator.java:111)
+at org.powermock.api.mockito.internal.mockcreation.MockCreator.mock(MockCreator.java:60)
+at org.powermock.api.mockito.PowerMockito.mock(PowerMockito.java:143)
+at com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.executeOsgiRequest(JCicsOsgiTestCase.java:167)
+at com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.executeOsgiRequest(JCicsOsgiTestCase.java:122)
+at com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.checkFunctionReturnString(JCicsOsgiTestCase.java:99)
+at com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.testJcicsOsgiRoundtrip(JCicsOsgiTestCase.java:230)
+at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.lang.reflect.Method.invoke(Method.java:606)
+at org.junit.internal.runners.TestMethod.invoke(TestMethod.java:68)
+at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.runTestMethod(PowerMockJUnit44RunnerDelegateImpl.java:310)
+at org.junit.internal.runners.MethodRoadie$2.run(MethodRoadie.java:88)
+at org.junit.internal.runners.MethodRoadie.runBeforesThenTestThenAfters(MethodRoadie.java:96)
+at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.executeTest(PowerMockJUnit44RunnerDelegateImpl.java:294)
+at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.executeTestInSuper(PowerMockJUnit47RunnerDelegateImpl.java:127)
+at org.powermock.modules.junit4.internal.impl.PowerMockJUnit47RunnerDelegateImpl$PowerMockJUnit47MethodRunner.executeTest(PowerMockJUnit47RunnerDelegateImpl.java:82)
+at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$PowerMockJUnit44MethodRunner.runBeforesThenTestThenAfters(PowerMockJUnit44RunnerDelegateImpl.java:282)
+at org.junit.internal.runners.MethodRoadie.runTest(MethodRoadie.java:86)
+at org.junit.internal.runners.MethodRoadie.run(MethodRoadie.java:49)
+at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.invokeTestMethod(PowerMockJUnit44RunnerDelegateImpl.java:207)
+at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.runMethods(PowerMockJUnit44RunnerDelegateImpl.java:146)
+at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl$1.run(PowerMockJUnit44RunnerDelegateImpl.java:120)
+at org.junit.internal.runners.ClassRoadie.runUnprotected(ClassRoadie.java:33)
+at org.junit.internal.runners.ClassRoadie.runProtected(ClassRoadie.java:45)
+at org.powermock.modules.junit4.internal.impl.PowerMockJUnit44RunnerDelegateImpl.run(PowerMockJUnit44RunnerDelegateImpl.java:122)
+at org.powermock.modules.junit4.common.internal.impl.JUnit4TestSuiteChunkerImpl.run(JUnit4TestSuiteChunkerImpl.java:104)
+at org.powermock.modules.junit4.common.internal.impl.AbstractCommonPowerMockRunner.run(AbstractCommonPowerMockRunner.java:53)
+at org.powermock.modules.junit4.PowerMockRunner.run(PowerMockRunner.java:53)
+at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:50)
+at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:459)
+at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:675)
+at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:382)
+at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192)
+
+
+
+Thanks for reporting. We'll sort this out.
+
+
+
+We'll fix this NPE but the underlying problem won't be fixed and is probably related to PowerMock
+
+
+
+Thanks for getting the fix in the pipeline.  Yeah, the underlying issue is driving me nuts. Any hints?
+
+
+
+Can you touch base with PowerMockito guys? Does it work if you don't use PowerMockito but vanilla Mockito?
+
+
+
+I'll see how deep I can go with this... I'll see how much code I'd have to change to avoid using PowerMock.
+When can I expect to see a version with this fix in Maven Central?
+Thank you,
+Gary
+
+
+
+Hey,
+Mockito should get released in ~10 mins to bintray. I will invoke sync to
+central but I don't know when it arrives in central. Probably between 12-24
+hours from now.
+Cheers!
+On Wed, Oct 8, 2014 at 8:33 PM, Gary Gregory notifications@github.com
+wrote:
+
+I'll see how deep I can go with this... I'll see how much code I'd have to
+change to avoid using PowerMock.
+When can I expect to see a version with this fix in Maven Central?
+Thank you,
+Gary
+
+Reply to this email directly or view it on GitHub
+#98 (comment).
+
+
+Szczepan Faber
+Core dev@gradle; Founder@mockito
+
+
+
+Is bintray a Maven repo? Where is that?
+Thank you!
+Gary
+On Wed, Oct 8, 2014 at 2:50 PM, Szczepan Faber notifications@github.com
+wrote:
+
+Hey,
+Mockito should get released in ~10 mins to bintray. I will invoke sync to
+central but I don't know when it arrives in central. Probably between 12-24
+hours from now.
+Cheers!
+On Wed, Oct 8, 2014 at 8:33 PM, Gary Gregory notifications@github.com
+wrote:
+
+I'll see how deep I can go with this... I'll see how much code I'd have
+to
+change to avoid using PowerMock.
+When can I expect to see a version with this fix in Maven Central?
+Thank you,
+Gary
+
+Reply to this email directly or view it on GitHub
+#98 (comment).
+
+
+Szczepan Faber
+Core dev@gradle; Founder@mockito
+—
+Reply to this email directly or view it on GitHub
+#98 (comment).
+
+
+E-Mail: garydgregory@gmail.com | ggregory@apache.org
+Java Persistence with Hibernate, Second Edition
+http://www.manning.com/bauer3/
+JUnit in Action, Second Edition http://www.manning.com/tahchiev/
+Spring Batch in Action http://www.manning.com/templier/
+Blog: http://garygregory.wordpress.com
+Home: http://garygregory.com/
+Tweet! http://twitter.com/GaryGregory
+
+
+
+Ah, found it: http://jcenter.bintray.com/
+Gary
+On Wed, Oct 8, 2014 at 2:56 PM, Gary Gregory garydgregory@gmail.com wrote:
+
+Is bintray a Maven repo? Where is that?
+Thank you!
+Gary
+On Wed, Oct 8, 2014 at 2:50 PM, Szczepan Faber notifications@github.com
+wrote:
+
+Hey,
+Mockito should get released in ~10 mins to bintray. I will invoke sync to
+central but I don't know when it arrives in central. Probably between
+12-24
+hours from now.
+Cheers!
+On Wed, Oct 8, 2014 at 8:33 PM, Gary Gregory notifications@github.com
+wrote:
+
+I'll see how deep I can go with this... I'll see how much code I'd have
+to
+change to avoid using PowerMock.
+When can I expect to see a version with this fix in Maven Central?
+Thank you,
+Gary
+
+Reply to this email directly or view it on GitHub
+#98 (comment).
+
+
+Szczepan Faber
+Core dev@gradle; Founder@mockito
+—
+Reply to this email directly or view it on GitHub
+#98 (comment).
+
+
+E-Mail: garydgregory@gmail.com | ggregory@apache.org
+Java Persistence with Hibernate, Second Edition
+http://www.manning.com/bauer3/
+JUnit in Action, Second Edition http://www.manning.com/tahchiev/
+Spring Batch in Action http://www.manning.com/templier/
+Blog: http://garygregory.wordpress.com
+Home: http://garygregory.com/
+Tweet! http://twitter.com/GaryGregory
+
+
+E-Mail: garydgregory@gmail.com | ggregory@apache.org
+Java Persistence with Hibernate, Second Edition
+http://www.manning.com/bauer3/
+JUnit in Action, Second Edition http://www.manning.com/tahchiev/
+Spring Batch in Action http://www.manning.com/templier/
+Blog: http://garygregory.wordpress.com
+Home: http://garygregory.com/
+Tweet! http://twitter.com/GaryGregory
+
+
+
+Uhg, PowerMock seems to point the finger at Mockito with:
+https://code.google.com/p/powermock/issues/detail?id=488
+
+
+
+The test case passes with vanilla Mockito.
+On Wed, Oct 8, 2014 at 9:10 PM, Gary Gregory notifications@github.com
+wrote:
+
+Uhg, PowerMock seems to point the finger at Mockito with:
+https://code.google.com/p/powermock/issues/detail?id=488
+
+Reply to this email directly or view it on GitHub
+#98 (comment).
+
+
+Szczepan Faber
+Core dev@gradle; Founder@mockito
+
+
+
+Arg, I've recoded one test class to be Mockito only, no PowerMock and I see the problem clearly now: I am trying to Mock objects from an OSGi bundle. The tests will also fail from our Ant build I am sure...
+Any tips or links on how to do this before I go googling around?
+org.mockito.exceptions.base.MockitoException:
+ClassCastException occurred while creating the mockito proxy :
+class to imposterize : 'com.seagullsw.appinterface.server.cics.ICicsServerFactory', loaded by classloader : 'org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader@7c029043'
+imposterizing class : 'com.seagullsw.appinterface.server.cics.ICicsServerFactory$$EnhancerByMockitoWithCGLIB$$77ba28b2', loaded by classloader : 'org.mockito.internal.creation.jmock.SearchingClassLoader@5a3884c0'
+proxy instance class : 'null
+You might experience classloading issues, disabling the Objenesis cache might help (see MockitoConfiguration)
+at com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.executeOsgiRequest(JCicsOsgiTestCase.java:168)
+at com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.executeOsgiRequest(JCicsOsgiTestCase.java:122)
+at com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.checkFunctionReturnString(JCicsOsgiTestCase.java:99)
+at com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.testJcicsOsgiRoundtrip(JCicsOsgiTestCase.java:233)
+at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.lang.reflect.Method.invoke(Method.java:606)
+at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:271)
+at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:70)
+at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)
+at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27)
+at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+at org.mockito.internal.runners.JUnit45AndHigherRunnerImpl.run(JUnit45AndHigherRunnerImpl.java:37)
+at org.mockito.runners.MockitoJUnitRunner.run(MockitoJUnitRunner.java:62)
+at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:50)
+at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:459)
+at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:675)
+at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:382)
+at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192)
+Caused by: java.lang.ClassCastException: com.seagullsw.appinterface.server.cics.ICicsServerFactory$$EnhancerByMockitoWithCGLIB$$77ba28b2 cannot be cast to org.mockito.cglib.proxy.Factory
+at org.mockito.internal.creation.jmock.ClassImposterizer.createProxy(ClassImposterizer.java:142)
+at org.mockito.internal.creation.jmock.ClassImposterizer.imposterise(ClassImposterizer.java:61)
+at org.mockito.internal.creation.jmock.ClassImposterizer.imposterise(ClassImposterizer.java:52)
+at org.mockito.internal.creation.CglibMockMaker.createMock(CglibMockMaker.java:24)
+at org.powermock.api.mockito.internal.mockmaker.PowerMockMaker.createMock(PowerMockMaker.java:43)
+at org.mockito.internal.util.MockUtil.createMock(MockUtil.java:32)
+at org.mockito.internal.MockitoCore.mock(MockitoCore.java:59)
+at org.mockito.Mockito.mock(Mockito.java:1258)
+at org.mockito.Mockito.mock(Mockito.java:1135)
+... 31 more
+Thank you,
+Gary
+
+
+
+I don't know how to help with this one, sorry :/
+On Thu, Oct 9, 2014 at 3:56 AM, Gary Gregory notifications@github.com
+wrote:
+
+Arg, I've recoded one test class to be Mockito only, no PowerMock and I
+see the problem clearly now: I am trying to Mock objects from an OSGi
+bundle. The tests will also fail from our Ant build I am sure...
+Any tips or links on how to do this before I go googling around?
+org.mockito.exceptions.base.MockitoException:
+ClassCastException occurred while creating the mockito proxy :
+class to imposterize :
+'com.seagullsw.appinterface.server.cics.ICicsServerFactory', loaded by
+classloader :
+'org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader@7c029043'
+imposterizing class :
+'com.seagullsw.appinterface.server.cics.ICicsServerFactory$$EnhancerByMockitoWithCGLIB$$77ba28b2',
+loaded by classloader :
+'org.mockito.internal.creation.jmock.SearchingClassLoader@5a3884c0'
+proxy instance class : 'null
+You might experience classloading issues, disabling the Objenesis cache
+might help (see MockitoConfiguration)
+at
+com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.executeOsgiRequest(JCicsOsgiTestCase.java:168)
+at
+com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.executeOsgiRequest(JCicsOsgiTestCase.java:122)
+at
+com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.checkFunctionReturnString(JCicsOsgiTestCase.java:99)
+at
+com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.testJcicsOsgiRoundtrip(JCicsOsgiTestCase.java:233)
+at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.lang.reflect.Method.invoke(Method.java:606)
+at
+org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+at
+org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+at
+org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+at
+org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:271)
+at
+org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:70)
+at
+org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)
+at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+at
+org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+at
+org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27)
+at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+at
+org.mockito.internal.runners.JUnit45AndHigherRunnerImpl.run(JUnit45AndHigherRunnerImpl.java:37)
+at org.mockito.runners.MockitoJUnitRunner.run(MockitoJUnitRunner.java:62)
+at
+org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:50)
+at
+org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+at
+org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:459)
+at
+org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:675)
+at
+org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:382)
+at
+org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192)
+Caused by: java.lang.ClassCastException:
+com.seagullsw.appinterface.server.cics.ICicsServerFactory$$EnhancerByMockitoWithCGLIB$$77ba28b2
+cannot be cast to org.mockito.cglib.proxy.Factory
+at
+org.mockito.internal.creation.jmock.ClassImposterizer.createProxy(ClassImposterizer.java:142)
+at
+org.mockito.internal.creation.jmock.ClassImposterizer.imposterise(ClassImposterizer.java:61)
+at
+org.mockito.internal.creation.jmock.ClassImposterizer.imposterise(ClassImposterizer.java:52)
+at
+org.mockito.internal.creation.CglibMockMaker.createMock(CglibMockMaker.java:24)
+at
+org.powermock.api.mockito.internal.mockmaker.PowerMockMaker.createMock(PowerMockMaker.java:43)
+at org.mockito.internal.util.MockUtil.createMock(MockUtil.java:32)
+at org.mockito.internal.MockitoCore.mock(MockitoCore.java:59)
+at org.mockito.Mockito.mock(Mockito.java:1258)
+at org.mockito.Mockito.mock(Mockito.java:1135)
+... 31 more
+Thank you,
+Gary
+
+Reply to this email directly or view it on GitHub
+#98 (comment).
+
+
+Szczepan Faber
+Core dev@gradle; Founder@mockito
+
+
+
+I solved the problem by invoking all methods dynamically because the mocked objects live in an OSGI class loader.
+Gary
+-------- Original message --------From: Szczepan Faber notifications@github.com Date:10/10/2014  14:50  (GMT-05:00) To: mockito/mockito mockito@noreply.github.com Cc: Gary Gregory garydgregory@gmail.com Subject: Re: [mockito] possible NPE exception when class cannot be mocked via
+  PowerMockito (#98) 
+I don't know how to help with this one, sorry :/
+On Thu, Oct 9, 2014 at 3:56 AM, Gary Gregory notifications@github.com
+wrote:
+
+Arg, I've recoded one test class to be Mockito only, no PowerMock and I
+see the problem clearly now: I am trying to Mock objects from an OSGi
+bundle. The tests will also fail from our Ant build I am sure...
+Any tips or links on how to do this before I go googling around?
+org.mockito.exceptions.base.MockitoException:
+ClassCastException occurred while creating the mockito proxy :
+class to imposterize :
+'com.seagullsw.appinterface.server.cics.ICicsServerFactory', loaded by
+classloader :
+'org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader@7c029043'
+imposterizing class :
+'com.seagullsw.appinterface.server.cics.ICicsServerFactory$$EnhancerByMockitoWithCGLIB$$77ba28b2',
+loaded by classloader :
+'org.mockito.internal.creation.jmock.SearchingClassLoader@5a3884c0'
+proxy instance class : 'null
+You might experience classloading issues, disabling the Objenesis cache
+might help (see MockitoConfiguration)
+at
+com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.executeOsgiRequest(JCicsOsgiTestCase.java:168)
+at
+com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.executeOsgiRequest(JCicsOsgiTestCase.java:122)
+at
+com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.checkFunctionReturnString(JCicsOsgiTestCase.java:99)
+at
+com.seagullsw.appinterface.server.osgi.JCicsOsgiTestCase.testJcicsOsgiRoundtrip(JCicsOsgiTestCase.java:233)
+at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.lang.reflect.Method.invoke(Method.java:606)
+at
+org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+at
+org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+at
+org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+at
+org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:271)
+at
+org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:70)
+at
+org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)
+at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+at
+org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+at
+org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27)
+at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+at
+org.mockito.internal.runners.JUnit45AndHigherRunnerImpl.run(JUnit45AndHigherRunnerImpl.java:37)
+at org.mockito.runners.MockitoJUnitRunner.run(MockitoJUnitRunner.java:62)
+at
+org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:50)
+at
+org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+at
+org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:459)
+at
+org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:675)
+at
+org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:382)
+at
+org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192)
+Caused by: java.lang.ClassCastException:
+com.seagullsw.appinterface.server.cics.ICicsServerFactory$$EnhancerByMockitoWithCGLIB$$77ba28b2
+cannot be cast to org.mockito.cglib.proxy.Factory
+at
+org.mockito.internal.creation.jmock.ClassImposterizer.createProxy(ClassImposterizer.java:142)
+at
+org.mockito.internal.creation.jmock.ClassImposterizer.imposterise(ClassImposterizer.java:61)
+at
+org.mockito.internal.creation.jmock.ClassImposterizer.imposterise(ClassImposterizer.java:52)
+at
+org.mockito.internal.creation.CglibMockMaker.createMock(CglibMockMaker.java:24)
+at
+org.powermock.api.mockito.internal.mockmaker.PowerMockMaker.createMock(PowerMockMaker.java:43)
+at org.mockito.internal.util.MockUtil.createMock(MockUtil.java:32)
+at org.mockito.internal.MockitoCore.mock(MockitoCore.java:59)
+at org.mockito.Mockito.mock(Mockito.java:1258)
+at org.mockito.Mockito.mock(Mockito.java:1135)
+... 31 more
+Thank you,
+Gary
+
+Reply to this email directly or view it on GitHub
+#98 (comment).
+
+
+Szczepan Faber
+Core dev@gradle; Founder@mockito
+—
+Reply to this email directly or view it on GitHub.
+

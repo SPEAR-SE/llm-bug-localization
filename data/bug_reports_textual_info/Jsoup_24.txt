@@ -1,0 +1,64 @@
+
+
+Loses a single quote when the javascript contains a partial tag, exampled pared from ad section of http://scienceblogs.com/pharyngula.  Note in the result that '</scr is missing closing ' :
+Input:
+<HTML>
+<body>
+ <div>
+  <script language="JavaScript1.1"> 
+    document.write('</scr' + 'ipt>');
+  </script>
+ </div>
+</body>
+</HTML>
+
+Result:
+<html>
+ <body> 
+  <div> 
+   <script language="JavaScript1.1"> 
+    document.write('</scr + 'ipt>');
+  
+   </script> 
+  </div>  
+ </body>
+</html>
+
+
+
+
+Actually just got the latest from git and it seems to be working for 1.6.1!  Easy..
+
+
+
+Hi the problem is actually not fixed in 1.6.1 if the script tag contains an HTML comment.
+Input:
+<script>
+  <!--
+    document.write('</scr' + 'ipt>');
+  // -->
+</script>
+Result:
+<script>
+  <!--
+    document.write('</scr + 'ipt>');
+  // -->
+</script>
+Maybe this issue need to be reopened?
+
+
+
+Ok, reopened.  Interestingly the above doesn't happen in just a html comment, but only if also within a script tag.
+
+
+
+Thanks! Exactly, pretty freaky…
+
+
+
+Thanks for pointing this out and digging into the test case
+
+
+
+NP, thanks for fixing it! ;)
+

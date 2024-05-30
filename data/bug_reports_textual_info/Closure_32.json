@@ -1,0 +1,34 @@
+{
+    "id": 701,
+    "status": "Fixed",
+    "summary": "Preserve doesn't preserve whitespace at start of line",
+    "labels": [
+        "Type-Defect",
+        "Priority-Medium"
+    ],
+    "stars": 0,
+    "commentCount": 3,
+    "comments": [
+        {
+            "id": 0,
+            "commenterId": 659813697836453438,
+            "content": "<b>What steps will reproduce the problem?</b>\n\r\nCode such as:\r\n/**\r\n * @preserve\r\n\r\nThis\r\n  was\r\n    ASCII\r\n       Art\r\n\r\n*/\r\n\r\n<b>What is the expected output? What do you see instead?</b>\n\r\nThe words line up on the left:\r\n/*\r\nThis\r\nwas\r\nASCII\r\nArt\r\n*/\r\n\r\n\r\n<b>What version of the product are you using? On what operating system?</b>\n\r\nLive web verison.\r\n\r\n\r\n<b>Please provide any additional information below.</b>\n",
+            "timestamp": 1333301196,
+            "attachments": []
+        },
+        {
+            "id": 1,
+            "commenterId": -7699928860083865744,
+            "content": "",
+            "timestamp": 1333574975,
+            "attachments": []
+        },
+        {
+            "id": 2,
+            "commenterId": -7699928860083865744,
+            "content": "This issue was closed by revision r1869.",
+            "timestamp": 1333736591,
+            "attachments": []
+        }
+    ]
+}

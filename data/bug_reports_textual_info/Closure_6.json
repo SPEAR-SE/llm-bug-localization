@@ -1,0 +1,42 @@
+{
+    "id": 635,
+    "status": "Duplicate",
+    "summary": "better 'this' type checking",
+    "labels": [
+        "Type-Defect",
+        "Priority-Medium",
+        "Restrict-AddIssueComment-Nobody"
+    ],
+    "stars": 0,
+    "commentCount": 4,
+    "comments": [
+        {
+            "id": 0,
+            "commenterId": -7699928860083865744,
+            "content": "/** @constructor */\r\nfunction F() {}\r\nF.prototype.bar = function() { this.baz(); };\r\nF.prototype.baz = function() { };\r\n\r\n/** @constructor */\r\nfunction G() {}\r\nG.prototype.bar = F.prototype.bar;\r\n\r\nWe should notice that &quot;F.prototype.bar&quot; and &quot;G.prototype.bar&quot; have different &quot;this&quot; types, and emit a warning.",
+            "timestamp": 1325857411,
+            "attachments": []
+        },
+        {
+            "id": 1,
+            "commenterId": -8207167910917391337,
+            "content": "Relatedly, new: types in @return should be checked against what's really returned:\r\n\r\nBelow, constructorFactory returns a constuctor that doesn't match the\r\ndeclared return type, yet no warning ensues:\r\n\r\n/**\r\n * @typedef {{\r\n *   foo: function()\r\n * }}\r\n */\r\nvar Type;\r\n\r\n/** @constructor */\r\nvar T0 = function() {};\r\n\r\nT0.prototype.foo2 = function() {\r\n  window.alert('foo');\r\n};\r\n\r\n/**\r\n * @return {function(new:Type)}\r\n */\r\nvar constructorFactory = function() {\r\n  return T0;\r\n};\r\n\r\nvar T = constructorFactory();\r\n\r\nvar t = new T;\r\n\r\nt.foo();",
+            "timestamp": 1351855842,
+            "attachments": []
+        },
+        {
+            "id": 2,
+            "commenterId": -8769171937076622550,
+            "content": "Issue tracking has been migrated to github. Please make any further comments on this issue through https://github.com/google/closure-compiler/issues",
+            "timestamp": 1398969109,
+            "attachments": []
+        },
+        {
+            "id": 3,
+            "commenterId": -8769171937076622550,
+            "content": "",
+            "timestamp": 1398969252,
+            "attachments": []
+        }
+    ]
+}

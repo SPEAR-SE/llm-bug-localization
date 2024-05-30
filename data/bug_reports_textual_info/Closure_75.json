@@ -1,0 +1,90 @@
+{
+    "id": 395,
+    "status": "Fixed",
+    "summary": "closure compiled swfobject error",
+    "labels": [
+        "Type-Defect",
+        "Priority-Medium"
+    ],
+    "stars": 1,
+    "commentCount": 11,
+    "comments": [
+        {
+            "id": 0,
+            "commenterId": 2830153224864405267,
+            "content": "swfobject.js code\r\n\r\nfunction urlEncodeIfNecessary(s) {\r\n\tvar regex = /[\\\\\\&quot;&lt;&gt;\\.;]/;\r\n\tvar hasBadChars = regex.exec(s) != null;\r\n\treturn hasBadChars &amp;&amp; typeof encodeURIComponent != UNDEF ? encodeURIComponent(s) : s;\r\n}\r\n\r\nclosure compiled:\r\n\r\nfunction Z(a){return/[\\&quot;&lt;&gt;.;]/.exec(a)!=\r\nnull&amp;&amp;typeof encodeURIComponent!=j?encodeURIComponent(a):a}\r\n\r\nbut it's error.and minify erray:\r\nFatal error: Uncaught exception 'JSMin_UnterminatedStringException' with message 'Unterminated String: '&quot;&lt;&gt;.;]/.exec(a)!=''\r\n\r\nreturn/[\\&quot;&lt;&gt;.;]/ to  return /[\\&quot;&lt;&gt;.;]/   that's OK\r\n\r\n\r\nie = !+&quot;\\v1&quot;,   closure compiled to   ie=!1,    my god!!\r\n",
+            "timestamp": 1301566751,
+            "attachments": []
+        },
+        {
+            "id": 1,
+            "commenterId": 8173196008570380122,
+            "content": "What version of the compiler are you using? I'm not getting the same results on urlEncodeIfNecessary:\r\n\r\nfunction urlEncodeIfNecessary(s) {\r\n\tvar regex = /[\\\\\\\"<>\\.;]/;\r\n\tvar hasBadChars = regex.exec(s) != null;\r\n\treturn hasBadChars && typeof encodeURIComponent != 'undefined' ? encodeURIComponent(s) : s;\r\n}\r\nwindow[\"urlEncodeIfNecessary\"] = urlEncodeIfNecessary;\r\n\r\nCompiles to:\r\n\r\nwindow.urlEncodeIfNecessary = function(a) {\r\n  return/[\\\\\\\"<>\\.;]/.exec(a) != null && typeof encodeURIComponent != \"undefined\" ? encodeURIComponent(a) : a\r\n};",
+            "timestamp": 1301580448,
+            "attachments": []
+        },
+        {
+            "id": 2,
+            "commenterId": 2830153224864405267,
+            "content": "today download the last version.\r\n\r\nDo have this problem, by swfobject v2.2 Compiles ",
+            "timestamp": 1301585144,
+            "attachments": []
+        },
+        {
+            "id": 3,
+            "commenterId": 6454800031398885070,
+            "content": "I'll confirm Chad's result. Neither \"compiler-latest.zip\" (Windows 7, Java 1.6.0_24 build 7)  nor \"closure-compiler.appspot.com\" compile \"http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject_src.js\" to the result your describe.\r\nHere is the relevant snippet from the result:\r\nfunction U(a){return/[\\\\\\\"<>\\.;]/.exec(a)!=o&&typeof encodeURIComponent!=i?encodeURIComponent(a):a}\r\n\r\nYou'll need to provide additional details:\r\n- what os?\r\n- what version of java?\r\n- the complete command-line used\r\n- the actual source file that can be used to reproduce the issue.",
+            "timestamp": 1301588478,
+            "attachments": []
+        },
+        {
+            "id": 4,
+            "commenterId": 8173196008570380122,
+            "content": "I'll let someone else jump in, but I would say that:\r\n\r\nie = !+\"\\v1\"\r\n\r\ncompiling to:\r\n\r\nie=!1\r\n\r\nis working as intended.",
+            "timestamp": 1301589031,
+            "attachments": []
+        },
+        {
+            "id": 5,
+            "commenterId": 2830153224864405267,
+            "content": "java version \"1.6.0_21\"\r\nJava(TM) SE Runtime Environment (build 1.6.0_21-b06)\r\nJava HotSpot(TM) Client VM (build 17.0-b16, mixed mode, sharing)\r\n\r\nWindows 7 SP1 chinese , nor \"closure-compiler.appspot.com\" compile \r\n\r\nI do not know why. now, it is good. Thinks!\r\n\r\nminify error:\r\nFatal error: Uncaught exception 'JSMin_UnterminatedStringException' with message 'Unterminated String: '\",''\r\n\r\nStill can not resolve！\r\n\r\n",
+            "timestamp": 1301643766,
+            "attachments": []
+        },
+        {
+            "id": 6,
+            "commenterId": 6454800031398885070,
+            "content": "1) How are you running the compiler?\r\n2) Attach the file or provide a link to the version you are using.\r\n3) Is anyone else able to reproduce your results?\r\n\r\n\r\n",
+            "timestamp": 1301708613,
+            "attachments": []
+        },
+        {
+            "id": 7,
+            "commenterId": -7699928860083865744,
+            "content": "nope, \r\n!+\"\\v1\"\r\nevaluates to true in jscript (IE) and false in ecmascript (everybody else). this is probably something we should fix.",
+            "timestamp": 1301717182,
+            "attachments": []
+        },
+        {
+            "id": 8,
+            "commenterId": -7699928860083865744,
+            "content": "the other error sounds like you're running JSMin, and JSMin has a bug.",
+            "timestamp": 1301717711,
+            "attachments": []
+        },
+        {
+            "id": 9,
+            "commenterId": 6454800031398885070,
+            "content": "@Nick:  dang. vertical tab. Yeah we should fix this.",
+            "timestamp": 1301763186,
+            "attachments": []
+        },
+        {
+            "id": 10,
+            "commenterId": 1328304962299559429,
+            "content": "This issue was closed by revision r963.",
+            "timestamp": 1302016594,
+            "attachments": []
+        }
+    ]
+}

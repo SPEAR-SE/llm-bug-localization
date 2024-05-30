@@ -1,0 +1,42 @@
+Error on TimeSeries createCopy() method
+
+The test case at the end fails with :
+java.lang.IllegalArgumentException: Requires start <= end.
+The problem is in that the int start and end indexes corresponding to given timePeriod are computed incorectly. Here I would expect an empty serie to be returned, not an exception. This is with jfreechart 1.0.7
+public class foo {
+static public void main(String args[]) {
+TimeSeries foo = new TimeSeries("foo",Day.class);
+foo.add(new Day(19,4,2005),1);
+foo.add(new Day(25,5,2005),1);
+foo.add(new Day(28,5,2005),1);
+foo.add(new Day(30,5,2005),1);
+foo.add(new Day(1,6,2005),1);
+foo.add(new Day(3,6,2005),1);
+foo.add(new Day(19,8,2005),1);
+foo.add(new Day(31,1,2006),1);
+    try \{
+        TimeSeries bar = foo.createCopy\(new Day\(1,12,2005\),new Day\(18,1,2006\)\);
+    \} catch \(CloneNotSupportedException e\) \{
+
+        e.printStackTrace\(\);
+}
+}
+
+Logged In: YES
+user_id=112975
+Originator: NO
+Confirmed.
+
+labels: --> General
+milestone: --> 1.0.x
+assigned_to: nobody --> mungady
+
+status: open --> closed-fixed
+
+Logged In: YES
+user_id=112975
+Originator: NO
+Thanks for the report. I committed a JUnit test and a bug fix for inclusion in the 1.0.10 release.
+Regards,
+Dave Gilbert
+JFreeChart Project Leader

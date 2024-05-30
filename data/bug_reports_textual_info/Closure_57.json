@@ -1,0 +1,34 @@
+{
+    "id": 530,
+    "status": "Fixed",
+    "summary": "compiler crashes when  goog.provide used with non string ",
+    "labels": [
+        "Type-Defect",
+        "Priority-Medium"
+    ],
+    "stars": 0,
+    "commentCount": 3,
+    "comments": [
+        {
+            "id": 0,
+            "commenterId": -4432501862262744608,
+            "content": "<b>What steps will reproduce the problem?</b>\n1. insert  goog.provide(some.function);\r\n2. compile.\r\n<b>3.</b>\n\r\n<b>What is the expected output? What do you see instead?</b>\n\r\nThis should give an error diagnostic. What it gives is:\r\n\r\njava.lang.RuntimeException: java.lang.RuntimeException: INTERNAL COMPILER ERROR.\r\nPlease email js-compiler@google.com with this stack trace.\r\nGETPROP 17 [originalname: Spike] [source_file: file.js] is not a string node\r\n Node(CALL): file.js:17:12\r\ngoog.provide(mine.Spike);\r\n...\r\n[stack traces...]\r\n\r\nI think this is the current build as of the day of this report.",
+            "timestamp": 1313100229,
+            "attachments": []
+        },
+        {
+            "id": 1,
+            "commenterId": -5060162230523776870,
+            "content": "",
+            "timestamp": 1313105909,
+            "attachments": []
+        },
+        {
+            "id": 2,
+            "commenterId": -7699928860083865744,
+            "content": "This issue was closed by revision r1357.",
+            "timestamp": 1313552869,
+            "attachments": []
+        }
+    ]
+}

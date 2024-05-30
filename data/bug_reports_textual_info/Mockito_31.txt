@@ -1,0 +1,238 @@
+
+
+I just posted on the Google Forums, but someway somehow my post immediately disappeared in the void. So I am reposting it again here.
+I have 3 failing tests on my Windows 8.1 machine.
+
+DefaultMockingDetailsTest.should_get_extra_interfaces
+NoJUnitDependenciesTest.pure_mockito_should_not_depend_JUnit___ByteBuddy
+ClassLoadersTest.excluding_class_loader_cannot_load_classes_when_no_correct_source_url_set
+
+For the first test, I was able to let it pass by changing line https://github.com/mockito/mockito/blob/master/test/org/mockito/internal/util/DefaultMockingDetailsTest.java#L56 to
+Bar bar = mock(Bar.class, withSettings().extraInterfaces(List.class, Observer.class));
+I am not sure if this is indeed the correct test, so please let me know.
+For the 2nd test, I first get the stack trace
+java.lang.AssertionError: 'org\mockito\configuration\MockitoConfiguration' has some dependency to JUnit
+    at org.mockitointegration.NoJUnitDependenciesTest.checkDependency(NoJUnitDependenciesTest.java:40)
+    at org.mockitointegration.NoJUnitDependenciesTest.pure_mockito_should_not_depend_JUnit___ByteBuddy(NoJUnitDependenciesTest.java:32)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:497)
+    at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:45)
+    at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:15)
+    at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:42)
+    at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:20)
+    at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:263)
+    at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:68)
+    at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:47)
+    at org.junit.runners.ParentRunner$3.run(ParentRunner.java:231)
+    at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:60)
+    at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:229)
+    at org.junit.runners.ParentRunner.access$000(ParentRunner.java:50)
+    at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:222)
+    at org.junit.runners.ParentRunner.run(ParentRunner.java:300)
+    at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:50)
+    at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:459)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:675)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:382)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192)
+Caused by: java.lang.NoClassDefFoundError: org\mockito\configuration\MockitoConfiguration (wrong name: org/mockito/configuration/MockitoConfiguration)
+    at java.lang.ClassLoader.defineClass1(Native Method)
+    at java.lang.ClassLoader.defineClass(ClassLoader.java:760)
+    at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:142)
+    at java.net.URLClassLoader.defineClass(URLClassLoader.java:467)
+    at java.net.URLClassLoader.access$100(URLClassLoader.java:73)
+    at java.net.URLClassLoader$1.run(URLClassLoader.java:368)
+    at java.net.URLClassLoader$1.run(URLClassLoader.java:362)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at java.net.URLClassLoader.findClass(URLClassLoader.java:361)
+    at org.mockitoutil.ClassLoaders$LocalExcludingURLClassLoader.findClass(ClassLoaders.java:156)
+    at java.lang.ClassLoader.loadClass(ClassLoader.java:424)
+    at java.lang.ClassLoader.loadClass(ClassLoader.java:357)
+    at java.lang.Class.forName0(Native Method)
+    at java.lang.Class.forName(Class.java:348)
+    at org.mockitointegration.NoJUnitDependenciesTest.checkDependency(NoJUnitDependenciesTest.java:38)
+    ... 24 more
+
+
+
+When I change line https://github.com/mockito/mockito/blob/master/test/org/mockitoutil/ClassLoaders.java#L361 to
+String temp = file.getAbsolutePath().substring(root.getAbsolutePath().length() + 1).replace('/', '.').replace('\\', '.');
+I get the following stack trace:
+java.lang.AssertionError: 'org.mockito.internal.progress.TimesTest' has some dependency to JUnit
+    at org.mockitointegration.NoJUnitDependenciesTest.checkDependency(NoJUnitDependenciesTest.java:40)
+    at org.mockitointegration.NoJUnitDependenciesTest.pure_mockito_should_not_depend_JUnit___ByteBuddy(NoJUnitDependenciesTest.java:32)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:497)
+    at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:45)
+    at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:15)
+    at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:42)
+    at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:20)
+    at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:263)
+    at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:68)
+    at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:47)
+    at org.junit.runners.ParentRunner$3.run(ParentRunner.java:231)
+    at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:60)
+    at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:229)
+    at org.junit.runners.ParentRunner.access$000(ParentRunner.java:50)
+    at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:222)
+    at org.junit.runners.ParentRunner.run(ParentRunner.java:300)
+    at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:50)
+    at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:459)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:675)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:382)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192)
+Caused by: java.lang.NoClassDefFoundError: junit/framework/Assert
+    at java.lang.ClassLoader.defineClass1(Native Method)
+    at java.lang.ClassLoader.defineClass(ClassLoader.java:760)
+    at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:142)
+    at java.net.URLClassLoader.defineClass(URLClassLoader.java:467)
+    at java.net.URLClassLoader.access$100(URLClassLoader.java:73)
+    at java.net.URLClassLoader$1.run(URLClassLoader.java:368)
+    at java.net.URLClassLoader$1.run(URLClassLoader.java:362)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at java.net.URLClassLoader.findClass(URLClassLoader.java:361)
+    at org.mockitoutil.ClassLoaders$LocalExcludingURLClassLoader.findClass(ClassLoaders.java:156)
+    at java.lang.ClassLoader.loadClass(ClassLoader.java:424)
+    at java.lang.ClassLoader.loadClass(ClassLoader.java:357)
+    at java.lang.ClassLoader.defineClass1(Native Method)
+    at java.lang.ClassLoader.defineClass(ClassLoader.java:760)
+    at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:142)
+    at java.net.URLClassLoader.defineClass(URLClassLoader.java:467)
+    at java.net.URLClassLoader.access$100(URLClassLoader.java:73)
+    at java.net.URLClassLoader$1.run(URLClassLoader.java:368)
+    at java.net.URLClassLoader$1.run(URLClassLoader.java:362)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at java.net.URLClassLoader.findClass(URLClassLoader.java:361)
+    at org.mockitoutil.ClassLoaders$LocalExcludingURLClassLoader.findClass(ClassLoaders.java:156)
+    at java.lang.ClassLoader.loadClass(ClassLoader.java:424)
+    at java.lang.ClassLoader.loadClass(ClassLoader.java:357)
+    at java.lang.Class.forName0(Native Method)
+    at java.lang.Class.forName(Class.java:348)
+    at org.mockitointegration.NoJUnitDependenciesTest.checkDependency(NoJUnitDependenciesTest.java:38)
+    ... 24 more
+Caused by: java.lang.ClassNotFoundException: classes with prefix : [junit, org.junit] are excluded
+    at org.mockitoutil.ClassLoaders$LocalExcludingURLClassLoader.findClass(ClassLoaders.java:155)
+    at java.lang.ClassLoader.loadClass(ClassLoader.java:424)
+    at java.lang.ClassLoader.loadClass(ClassLoader.java:357)
+    ... 51 more
+
+The reason I changed that line is because the temp result does not contain dots on windows machines, due to the fact that absolutepath does not return a path seperated by / but by \\.
+However then the test fails because the TimesTest in test/ does indeed depend on junit. Shouldn't it only load classes that are under src/?
+The 3rd test I sadly have no clue why it is succeeding and not throwing an exception.
+Looking forward to your responses =]
+
+
+
+Second test should be fixed in #206 - checkout PR and check
+
+
+
+On another note, when I run the test suite with Coverage as... using EclEmma, all tests in FieldsTest fail. The tests fields_should_return_all_declared_fields_in_hierarchy, can_filter_not_null_fields and fields_should_return_declared_fields fail because the element $jacocoData is in the array.
+The other tests:
+can_get_list_of_InstanceField:
+java.lang.AssertionError: unexpected element(s):<[org.mockito.internal.util.reflection.InstanceField@329de63]> in <[org.mockito.internal.util.reflection.InstanceField@d627de4f, org.mockito.internal.util.reflection.InstanceField@d627de30, org.mockito.internal.util.reflection.InstanceField@329de63]>
+    at org.fest.assertions.Fail.failure(Fail.java:228)
+    at org.fest.assertions.Assert.failure(Assert.java:149)
+    at org.fest.assertions.ItemGroupAssert.failureIfUnexpectedElementsFound(ItemGroupAssert.java:115)
+    at org.fest.assertions.ItemGroupAssert.assertContainsOnly(ItemGroupAssert.java:76)
+    at org.fest.assertions.ListAssert.containsOnly(ListAssert.java:193)
+    at org.mockito.internal.util.reflection.FieldsTest.can_get_list_of_InstanceField(FieldsTest.java:45)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:497)
+    at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:45)
+    at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:15)
+    at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:42)
+    at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:20)
+    at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:263)
+    at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:68)
+    at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:47)
+    at org.junit.runners.ParentRunner$3.run(ParentRunner.java:231)
+    at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:60)
+    at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:229)
+    at org.junit.runners.ParentRunner.access$000(ParentRunner.java:50)
+    at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:222)
+    at org.junit.runners.ParentRunner.run(ParentRunner.java:300)
+    at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:50)
+    at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:459)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:675)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:382)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192)
+
+can_get_values_of_instance_fields:
+java.lang.AssertionError: unexpected element(s):<[[Z@6870c3c2]> in <['a', 'b', [Z@6870c3c2]>
+    at org.fest.assertions.Fail.failure(Fail.java:228)
+    at org.fest.assertions.Assert.failure(Assert.java:149)
+    at org.fest.assertions.ItemGroupAssert.failureIfUnexpectedElementsFound(ItemGroupAssert.java:115)
+    at org.fest.assertions.ItemGroupAssert.assertContainsOnly(ItemGroupAssert.java:76)
+    at org.fest.assertions.ListAssert.containsOnly(ListAssert.java:193)
+    at org.mockito.internal.util.reflection.FieldsTest.can_get_values_of_instance_fields(FieldsTest.java:36)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+    at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    at java.lang.reflect.Method.invoke(Method.java:497)
+    at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:45)
+    at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:15)
+    at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:42)
+    at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:20)
+    at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:263)
+    at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:68)
+    at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:47)
+    at org.junit.runners.ParentRunner$3.run(ParentRunner.java:231)
+    at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:60)
+    at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:229)
+    at org.junit.runners.ParentRunner.access$000(ParentRunner.java:50)
+    at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:222)
+    at org.junit.runners.ParentRunner.run(ParentRunner.java:300)
+    at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:50)
+    at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:459)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:675)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:382)
+    at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192)
+
+
+
+
+@alberskib Oops I forgot to mention that. I tested #206 and it did NOT fix the issue. The stacktrace I get with that fix is the same as my 2nd stacktrace I posted.
+
+
+
+@JeremybellEU Could you check your first post - it looks like that for the 2nd test in both cases (before and after change) stacktraces are the same. So what is the difference?
+Edit: I noticed different class name
+
+
+
+I see that the first test has been fixed now in master as per d407574 No clue why my upstream didn't pull these changes.
+
+
+
+@JeremybellEU On machine with Windows 7 I am not able to reproduce problems described by you. Is there anything special in your config? Are you running tests on master branch?
+
+
+
+Yes I am running on master with no changes. I am running jdk 8.45 if that matters.
+
+
+
+I guess that the test errors are IDE related as it seems to be about class loader scoping. I can successfully run the tests on Windows 7 and Windows 8.
+
+
+
+And you are using IntelliJ I suppose? I will switch over to IntelliJ this summer, so after that happened I will let it know.
+
+
+
+I am using IntelliJ. I tried it both with the IDE and Gradle. Eclipse is built on top of OSGi and there is some strange class loader stuff that comes with it. I looked into Eclipse to make the Byte Buddy's tests work which often test class loaders-depended instrumentations. It's not that trivial to write tests for this and this is why I assume the tests fail.
+
+
+
+Closing this issue as I am now running Linux + IntelliJ. Seems too much work for a marginal result.
+

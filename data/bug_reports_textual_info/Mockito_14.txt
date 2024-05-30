@@ -1,0 +1,14 @@
+
+
+@bric3, can you take a look at this one? If you don't have time I'll just merge it. All existing tests are passing.
+Thanks for the fix!!!
+
+
+
+sorry for the late feedback, it looks good!
+anyway you have merged it already in 5a03bf5 ;)
+
+
+
+Fixed in 1.10.18 in 5a03bf5
+

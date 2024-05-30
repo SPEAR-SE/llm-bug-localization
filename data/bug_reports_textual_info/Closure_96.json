@@ -1,0 +1,34 @@
+{
+    "id": 229,
+    "status": "Fixed",
+    "summary": "Missing type-checks for var_args notation",
+    "labels": [
+        "Type-Defect",
+        "Priority-Medium"
+    ],
+    "stars": 1,
+    "commentCount": 3,
+    "comments": [
+        {
+            "id": 0,
+            "commenterId": -8565359677229908361,
+            "content": "<b>What steps will reproduce the problem?</b>\n1. Compile this:\r\n//-------------------------------------\r\n// ==ClosureCompiler==\r\n// @compilation_level SIMPLE_OPTIMIZATIONS\r\n// @warning_level VERBOSE\r\n// @output_file_name default.js\r\n// @formatting pretty_print\r\n// ==/ClosureCompiler==\r\n\r\n/**\r\n* @param {...string} var_args\r\n*/\r\nfunction foo(var_args) {\r\n    return arguments.length;\r\n}\r\n\r\nfoo('hello'); // no warning - ok\r\nfoo(123); // warning - ok\r\nfoo('hello', 123); // no warning! error.\r\n//-------------------------------------\r\n\r\n<b>What is the expected output? What do you see instead?</b>\nShould get a type-mismatch warning for the second parameter in the third foo() call.\r\n\r\n<b>What version of the product are you using? On what operating system?</b>\nBoth online compiler and the 20100616 release.\r\n\r\n<b>Please provide any additional information below.</b>\nSeems like the type-checker treats 'var_args' as a single param and thus fails to type check the subsequent parameters.\r\n\r\n// Fredrik",
+            "timestamp": 1283270124,
+            "attachments": []
+        },
+        {
+            "id": 1,
+            "commenterId": -7699928860083865744,
+            "content": "",
+            "timestamp": 1283379810,
+            "attachments": []
+        },
+        {
+            "id": 2,
+            "commenterId": 1328304962299559429,
+            "content": "This issue was closed by revision r402.",
+            "timestamp": 1283472836,
+            "attachments": []
+        }
+    ]
+}

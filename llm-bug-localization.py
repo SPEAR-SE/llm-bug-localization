@@ -1,43 +1,53 @@
 import math
 
 import utils
+import glob
 import importlib
 
 importlib.reload(utils)
 
+# from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
+from langchain.agents import tool
+from langchain_community.llms import OpenAI
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.tools.render import format_tool_to_openai_function
+from langchain.agents.format_scratchpad import format_to_openai_function_messages
+from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
+from langchain.schema.agent import AgentFinish
+from langchain.agents import AgentExecutor
+from langchain.agents.output_parsers import ReActSingleInputOutputParser
+from langchain_core.pydantic_v1 import BaseModel, Field, validator
+from langchain.output_parsers import PydanticOutputParser
 import json
 import sys
+from langchain.agents import AgentType, initialize_agent, load_tools
 import os
-import re
-from langchain_core.messages import (
-    BaseMessage,
-    FunctionMessage,
-    HumanMessage,
+# from langchain.prompts import MessagesPlaceholder
+from langchain.schema.messages import AIMessage, HumanMessage
+import pdb
+from langchain.agents.agent_toolkits.conversational_retrieval.tool import (
+    create_retriever_tool,
 )
-
-from langgraph.graph import END, StateGraph
-from langgraph.prebuilt.tool_executor import ToolExecutor, ToolInvocation
-
-from langchain_core.tools import tool
-
-import operator
-from typing import Annotated, Sequence
-
-from langchain.tools.render import format_tool_to_openai_function
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-
-from langchain_openai import ChatOpenAI
-from typing_extensions import TypedDict
-import functools
+from langchain.utils.openai_functions import convert_pydantic_to_openai_function
+from langchain.output_parsers import StructuredOutputParser, ResponseSchema
+from langchain_core.prompt_values import ChatPromptValue
+from langchain_core.agents import AgentActionMessageLog, AgentFinish
+import re
 
 from my_secrets import OPENAI_API_KEY
 from my_secrets import base_path
+
+MEMORY_KEY = "chat_history"
+
+chat_history = []
 
 paths_dict = {
     "gzoltar_files_path": os.path.join(base_path, "llm-bug-localization", "data", "gzoltar_files"),
     "bugs_with_stack_traces_details_file_path": os.path.join(base_path, "llm-bug-localization", "data",
                                                              "bug_reports_with_stack_traces_details.json"),
-    "output_path": os.path.join(base_path, "llm-bug-localization", "data", "output", "Lang_gpt3_grace_example"),
+    "output_path": os.path.join(base_path, "llm-bug-localization", "data", "output", "langchain_gpt3"),
+    "bug_reports_textual_info_path": os.path.join(base_path, "llm-bug-localization", "data", "bug_reports_textual_info"),
 }
 
 projects_folder = {
@@ -56,30 +66,6 @@ projects_folder = {
     "Mockito": "mockito",
     "Time": "joda-time"
 }
-
-
-def create_agent(llm, tools, system_message: str):
-    """Create an agent."""
-    functions = [format_tool_to_openai_function(t) for t in tools]
-
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            (
-                "system",
-                "You are a helpful Fault localization AI assistant, collaborating with other assistants."
-                " Use the provided tools to progress towards answering the question."
-                " If you are unable to fully answer, that's OK, another assistant with different tools "
-                " will help where you left off. Execute what you can to make progress."
-                " If you or any of the other assistants have the final answer or deliverable,"
-                " prefix your final response with FINAL ANSWER so the team knows to stop."
-                " You have access to the following tools: {tool_names}.\n{system_message}",
-            ),
-            MessagesPlaceholder(variable_name="messages"),
-        ]
-    )
-    prompt = prompt.partial(system_message=system_message)
-    prompt = prompt.partial(tool_names=", ".join([tool.name for tool in tools]))
-    return prompt | llm.bind_functions(functions)
 
 
 @tool
@@ -143,6 +129,21 @@ def get_tests_that_better_cover_the_stack_trace() -> list:
         if not test_result:  # Fake failing test
             tests_list.append(test_id)
     return tests_list
+
+
+@tool
+def get_bug_report_textual_info():
+    """
+    Returns the textual info contained the bug report. Can be a string or a json depending on the bug
+    """
+    txt_file = os.path.join(paths_dict["bug_reports_textual_info_path"], f"{project}_{bug_id}.txt")
+    json_file = os.path.join(paths_dict["bug_reports_textual_info_path"], f"{project}_{bug_id}.json")
+    if os.path.isfile(txt_file):
+        with open(txt_file, 'r', encoding='utf-8') as file_obj:
+            file_content = file_obj.read()
+    elif os.path.isfile(json_file):
+        file_content = utils.json_file_to_dict(json_file)
+    return file_content
 
 
 @tool
@@ -261,9 +262,10 @@ def get_method_body_by_method_signature(method_signature: str) -> str:
     file_path = utils.construct_file_path(repo_path, package_name, c_name)
 
     # Find the method or constructor and the next member
-    if (member_name == "invokeNative" or member_name=="InvocationTargetException") and project == "Gson" and bug_id == "8":
+    if (
+            member_name == "invokeNative" or member_name == "InvocationTargetException") and project == "Gson" and bug_id == "8":
         return None
-    if member_name=="testFails" and project == "JacksonDatabind" and bug_id == "59":
+    if member_name == "testFails" and project == "JacksonDatabind" and bug_id == "59":
         return None
     member, next_member, signature = utils.find_member_and_next(file_path, class_name, member_name)
 
@@ -342,271 +344,66 @@ def get_test_ids_str():
     return test_ids_str
 
 
-data = ''
-
-reviewer_tools = [get_method_body_by_method_signature]
-tester_tools = [get_stack_traces, get_test_body_by_id, get_test_ids, get_methods_covered_by_a_test,
-                get_tests_that_better_cover_the_stack_trace]
-
-
-# This defines the object that is passed between each node
-# in the graph. We will create different nodes for each agent and tool
-class AgentState(TypedDict):
-    messages: Annotated[Sequence[BaseMessage], operator.add]
-    sender: str
-
-
-# Helper function to create a node for a given agent
-def agent_node(state, agent, name):
-    result = agent.invoke(state)
-    # We convert the agent output into a format that is suitable to append to the global state
-    if isinstance(result, FunctionMessage):
-        pass
-    else:
-        result = HumanMessage(**result.dict(exclude={"type", "name"}), name=name)
-    return {
-        "messages": [result],
-        # Since we have a strict workflow, we can
-        # track the sender so we know who to pass to next.
-        "sender": name,
-    }
-
-
-# llm = ChatOpenAI(model="gpt-4-turbo", temperature=0)
-llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0, openai_api_key=OPENAI_API_KEY)
-
-# Research agent and node
-tester_agent = create_agent(
-    llm,
-    tester_tools,
-    system_message="You are a tester. You should gather all the test_ids, test_body and stack traces. There are no test failures in this bug, and there is a stack trace of the error. Communicate with the debugger if you need more information about any method.",
-)
-tester_node = functools.partial(agent_node, agent=tester_agent, name="Tester")
-
-# Chart Generator
-debugger_agent = create_agent(
-    llm,
-    reviewer_tools,
-    system_message="You are a debugger. You should communicate with tester and analyze the method which tester asks you to analyze and send a report to the tester agent.",
-)
-debugger_node = functools.partial(agent_node, agent=debugger_agent, name="Debugger")
-
-# # llm = ChatOpenAI(model="gpt-4-0125-preview", temperature=0)
-# llm = ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0)
-
-# # Research agent and node
-# tester_agent = create_agent(
-#     llm,
-#     tester_tools,
-#     system_message="You should gather all the test_ids, test_body and stack traces.",
-# )
-# research_node = functools.partial(agent_node, agent=research_agent, name="Tester")
-
-# # Chart Generator
-# debugger_agent = create_agent(
-#     llm,
-#     reviewer_tools,
-#     system_message="You should gather all the method_ids covered by a test_id and analyze the method bodies covered by a test_id.",
-# )
-# chart_node = functools.partial(agent_node, agent=chart_agent, name="Debugger")
-
-
-tools = tester_tools + reviewer_tools
-tool_executor = ToolExecutor(tools)
-
-
-def tool_node(state):
-    """This runs tools in the graph
-
-    It takes in an agent action and calls that tool and returns the result."""
-    messages = state["messages"]
-    # Based on the continue condition
-    # we know the last message involves a function call
-    last_message = messages[-1]
-    # We construct an ToolInvocation from the function_call
-    tool_input = json.loads(
-        last_message.additional_kwargs["function_call"]["arguments"]
-    )
-    # We can pass single-arg inputs by value
-    if len(tool_input) == 1 and "__arg1" in tool_input:
-        tool_input = next(iter(tool_input.values()))
-    tool_name = last_message.additional_kwargs["function_call"]["name"]
-    action = ToolInvocation(
-        tool=tool_name,
-        tool_input=tool_input,
-    )
-    # We call the tool_executor and get back a response
-    response = tool_executor.invoke(action)
-    # We use the response to create a FunctionMessage
-    function_message = FunctionMessage(
-        content=f"{tool_name} response: {str(response)}", name=action.tool
-    )
-    # We return a list, because this will get added to the existing list
-    return {"messages": [function_message]}
-
-
-# Either agent can decide to end
-def router(state):
-    # This is the router
-    messages = state["messages"]
-    last_message = messages[-1]
-    if "function_call" in last_message.additional_kwargs:
-        # The previus agent is invoking a tool
-        return "call_tool"
-    if "FINAL ANSWER" in last_message.content:
-        # Any agent decided the work is done
-        return "end"
-    # if "```json" in last_message.content:
-    #     # Any agent decided the work is done
-    #     return "end"
-    if "successfully completed" in last_message.content:
-        # Any agent decided the work is done
-        return "end"
-    if "Great collaboration!" in last_message.content:
-        # Any agent decided the work is done
-        return "end"
-    if "Great collaboration" in last_message.content:
-        # Any agent decid
-        return "end"
-    return "continue"
-
-
-def parse_and_save_json(contents, project, bug_id):
-    # Initialize a list to store JSON objects found
-    json_objects = []
-
-    # Loop through each content string in the contents list
-    for content in contents:
-        # Extract JSON strings from code blocks marked with triple backticks specifically for JSON
-        # print(content['messages'][0].content)
-        code_blocks = re.findall(r'```json\n([\s\S]*?)\n```', content['messages'][0].content)
-        for block in code_blocks:
-            try:
-                json_obj = json.loads(block)
-                json_objects.append(json_obj)
-            except json.JSONDecodeError:
-                continue  # Skip blocks that cannot be parsed as JSON
-
-        # # If no JSON objects were found in code blocks, search the entire content for standalone JSON objects
-        # if not json_objects:
-        #     standalone_json_strings = re.findall(r'\{.*?\}', content['messages'][0].content, re.DOTALL)
-        #     for json_string in standalone_json_strings:
-        #         try:
-        #             json_obj = json.loads(json_string)
-        #             json_objects.append(json_obj)
-        #         except json.JSONDecodeError:
-        #             continue  # Skip strings that cannot be parsed as JSON
-
-    # Prepare the final JSON structure
-    final_json = {
-        "project": project,
-        "bug_id": bug_id,
-        "ans": json_objects if json_objects else None,
-        "final_full_answer": str(contents)
-    }
-
-    # Define the output file path
-    file_path = os.path.join(paths_dict["output_path"], f"{project}_{bug_id}.json")
-
-    # Create the directory if it doesn't exist
-    dir_path = os.path.dirname(file_path)
-    os.makedirs(dir_path, exist_ok=True)
-
-    # Write the combined data to the file
-    with open(file_path, "w") as json_file:
-        json.dump(final_json, json_file, indent=4)
-
-    print(f"Data saved to {file_path}")
-    return file_path
-
-
-workflow = StateGraph(AgentState)
-
-workflow.add_node("Tester", tester_node)
-workflow.add_node("Debugger", debugger_node)
-workflow.add_node("call_tool", tool_node)
-
-workflow.add_conditional_edges(
-    "Tester",
-    router,
-    {"continue": "Debugger", "call_tool": "call_tool", "end": END},
-)
-workflow.add_conditional_edges(
-    "Debugger",
-    router,
-    {"continue": "Tester", "call_tool": "call_tool", "end": END},
-)
-
-workflow.add_conditional_edges(
-    "call_tool",
-    # Each agent node updates the 'sender' field
-    # the tool calling node does not, meaning
-    # this edge will route back to the original agent
-    # who invoked the tool
-    lambda x: x["sender"],
-    {
-        "Tester": "Tester",
-        "Debugger": "Debugger",
-    },
-)
-workflow.set_entry_point("Tester")
-graph = workflow.compile()
-
-from langchain.output_parsers import StructuredOutputParser, ResponseSchema
-
-test_id_schema = ResponseSchema(name="test_id",
-                                description="The id of the test")
-
-# test_name_schema = ResponseSchema(name="test_name",
-#                              description="The name of the test")
-
-suspicious_method_schema = ResponseSchema(name="method_signature",
-                                          description="The most suspicious method's signature")
-
-suspicious_method_reason_schema = ResponseSchema(name="reasoning",
-                                                 description="The reason for the method being suspicious")
-
-response_schemas = [suspicious_method_schema, suspicious_method_reason_schema]
-
-output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
-format_instructions = output_parser.get_format_instructions()
+tools = [get_method_body_by_method_signature, get_stack_traces, get_test_body_by_id, get_test_ids,
+         get_methods_covered_by_a_test, get_tests_that_better_cover_the_stack_trace, get_bug_report_textual_info]
 
 project = sys.argv[1]
 bug_id = sys.argv[2]
 
-json_answers = []
+llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0, openai_api_key=OPENAI_API_KEY)
+#output_file_path = os.path.join(paths_dict["output_path"], f"{project}_{bug_id}.json")
 
-test_ids_string = get_test_ids_str()
-print(f"Test IDs: {test_ids_string}")
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """
+                You are a Tester agent. You will be presented with an stack trace, and tools (functions) to access the source code and (passing) tests information of the system. Your task is list all the suspicious methods which needs to be analyzed to find the fault. You will be given 4 chances to interact with functions to gather relevant information.
+                """,
+        ),
+        MessagesPlaceholder(variable_name=MEMORY_KEY),
+        ("user", "{input}"),
+        MessagesPlaceholder(variable_name="agent_scratchpad"),
+    ]
+)
 
-# Read the prompt
-with open('data/prompts/prompt.txt', 'r') as file:
-    file_contents = file.read()
+llm_with_tools = llm.bind(functions=[format_tool_to_openai_function(t) for t in tools])
 
-prompt = f"{file_contents.format(bug_id=bug_id, test_ids_string=test_ids_string, format_instructions=format_instructions)}"
-
-answers = []
-
-for s in graph.stream(
+agent = (
         {
-            "messages": [
-                HumanMessage(
-                    content=prompt
-                )
-            ],
-        },
-        # Maximum number of steps to take in the graph
-        {"recursion_limit": 150},
-):
-    for key, value in s.items():
-        print(f"Output from node '{key}':")
-        print("---")
-        print(value)
-        # parse_and_save_json(value['messages'][0].content, project, bug_id)
-        answers.append(value)
-    print("\n---\n")
+            "input": lambda x: x["input"],
+            "agent_scratchpad": lambda x: format_to_openai_function_messages(
+                x["intermediate_steps"]
+            ),
+            "chat_history": lambda x: x["chat_history"],
+        }
+        | prompt
+        # | condense_prompt
+        | llm_with_tools
+        | OpenAIFunctionsAgentOutputParser()
 
-# print(answers)
-# Example usage
-# content = s['__end__']['messages'][-1].content
-parse_and_save_json(answers, project, bug_id)
+    # | output_parser
+
+)
+
+user_input = """
+As a Tester agent, I want you to list all the methods which might be suspicious to find the fault in the system under test. First analyze the bug report and stack trace and then based on that look for the covered methods by the important tests which might be suspicious or leading to the fault.
+
+You Must conclude your analysis with a JSON object ranking the top 5 suspicious  methods and summarizing your reasoning, following the specified structure: 
+```json
+{
+        "method_signatures": [sig1, sig2, sig3, sig4, sig5]  // The potential suspicious method's signatures
+}
+```
+"""
+
+intermediate_steps = []
+
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
+
+result = agent_executor.invoke({"input": user_input, "chat_history": chat_history})
+candidates_path = os.path.join(paths_dict["output_path"], "candidates", f"{project}_{bug_id}.json")
+raw_output_path = os.path.join(paths_dict["output_path"], "raw_output", f"{project}_{bug_id}.json")
+utils.save_raw_output(result['output'], raw_output_path)
+
+utils.parse_and_save_methodsig_json_2(result['output'], project, bug_id, candidates_path)

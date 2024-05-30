@@ -1,0 +1,19 @@
+
+
+I'm trying to upgrade the mockito version that we're using (1.8.5) to a newer version but there is a problem with @Injectmocks which since 1.9.0 doesn't inject into final field anymore.
+Were there any reasons for that feature to be removed?
+Is there another way to achieve this without polutting our class with useless (outside testing context) constructors / accessors?
+Is there a possibility to get that feature back?
+
+
+
+
+Were there any reasons for that feature to be removed?
+
+Actually this is by design. We want the mock injection functionality to be a good OOP citizen and then respect object constructor when there's one. So this won't coming back. This was an issue back in the days to even allow that.
+
+Is there another way to achieve this without polutting our class with useless (outside testing context) constructors / accessors?
+
+Better design according to each object use. If there's a constructor that is declared, why modify fields. If there's no constructor, then setter / field access will be used just like a spring bean. And yet this is not proper object oriented programming.
+Java Beans are an anti-pattern for everything that is not capturing data structure (like for views in the swing GUI).
+

@@ -1,0 +1,13 @@
+
+
+PosixParser keeps processing tokens after a non unrecognized long option when stopAtNonOption is enabled. The tokens after the unrecognized long option are burst, split around '=', etc.. instead of being kept as is.
+For example, with the options 'a' and 'b' defined, 'b' having an argument, the following command line:
+
+--zop -abfoo
+
+is interpreted as:
+
+--zop -a -b foo
+
+but the last token should remain unchanged.
+

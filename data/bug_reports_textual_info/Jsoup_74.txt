@@ -1,0 +1,22 @@
+
+
+Consider the following JUnit4 test
+@Test
+public void testIfShyIsStripped(){
+        String htmlwithSHY = "<html><body>quite&shy;a&shy;long&shy;word</body></html>";
+        Document parse = Jsoup.parse(htmlwithSHY);
+        String text = parse.body().text();
+        assertEquals("quitealongword", text);
+}
+This test fails as text is parsed as quite-a-long-word rather then it's actual textual representation that would have been quitealongword in any browser.
+Perhaps this is working as intended, but it would be interesting to understand the reasoning behind it.
+
+
+
+It would make sense to normalize the soft-hyphen. Like &nbsp; is normalized. Related commit is d3f0240
+Probably best to normalize all invisible characters out.
+
+
+
+Thanks, implemented.
+

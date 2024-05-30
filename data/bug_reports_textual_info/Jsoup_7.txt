@@ -1,0 +1,18 @@
+
+
+The page I will attach results in a Jsoup tree with two body elements, neither if which is a direct child of the html element.
+You will find the page in "git@github.com:bimargulies/Misc.git" under the jsoup-tc directory.
+
+
+
+Thanks, this is fixed now.
+
+
+
+Document normalisation now more correctly enforces document structure.
+
+ensure only one head and one body element, both under html el
+allow html/head/noscript/img for some site's analytic pattern
+
+Closed by 85ef3f6
+
