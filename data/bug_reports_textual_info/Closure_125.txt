@@ -1,0 +1,106 @@
+IllegalStateException at com.google.javascript.rhino.jstype.FunctionType.getInstanceType
+
+\u0026gt; What steps will reproduce the problem?\r
+ 1. Unpack attached test case.\r
+ 2. Ensure make, wget, unzip, and java are on your PATH\r
+ 3. make prep (or just set up the build manually, it\u0027s not complicated)\r
+ 4. make crash\r
+ \r
+ \u0026gt; What is the expected output? What do you see instead?\r
+ Expected output: either successful compilation, or a compilation error.\r
+ Actual output: \r
+ $ java \\\r
+ \t  -jar ./compiler.jar \\\r
+ \t  --js crash.js \\\r
+ \t  --warning_level\u003dVERBOSE \\\r
+ \t  --compilation_level\u003dSIMPLE_OPTIMIZATIONS\r
+ java.lang.RuntimeException: java.lang.IllegalStateException\r
+ \tat com.google.javascript.jscomp.Compiler.runInCompilerThread(Compiler.java:715)\r
+ \tat com.google.javascript.jscomp.Compiler.compile(Compiler.java:647)\r
+ \tat com.google.javascript.jscomp.Compiler.compile(Compiler.java:603)\r
+ \tat com.google.javascript.jscomp.AbstractCommandLineRunner.doRun(AbstractCommandLineRunner.java:783)\r
+ \tat com.google.javascript.jscomp.AbstractCommandLineRunner.run(AbstractCommandLineRunner.java:379)\r
+ \tat com.google.javascript.jscomp.CommandLineRunner.main(CommandLineRunner.java:972)\r
+ Caused by: java.lang.IllegalStateException\r
+ \tat com.google.common.base.Preconditions.checkState(Preconditions.java:133)\r
+ \tat com.google.javascript.rhino.jstype.FunctionType.getInstanceType(FunctionType.java:1071)\r
+ \tat com.google.javascript.jscomp.TypeCheck.visitNew(TypeCheck.java:1567)\r
+ \tat com.google.javascript.jscomp.TypeCheck.visit(TypeCheck.java:569)\r
+ \tat com.google.javascript.jscomp.NodeTraversal.traverseBranch(NodeTraversal.java:534)\r
+ \tat com.google.javascript.jscomp.NodeTraversal.traverseBranch(NodeTraversal.java:528)\r
+ \tat com.google.javascript.jscomp.NodeTraversal.traverseBranch(NodeTraversal.java:528)\r
+ \tat com.google.javascript.jscomp.NodeTraversal.traverseBranch(NodeTraversal.java:528)\r
+ \tat com.google.javascript.jscomp.NodeTraversal.traverseBranch(NodeTraversal.java:528)\r
+ \tat com.google.javascript.jscomp.NodeTraversal.traverseBranch(NodeTraversal.java:528)\r
+ \tat com.google.javascript.jscomp.NodeTraversal.traverseBranch(NodeTraversal.java:528)\r
+ \tat com.google.javascript.jscomp.NodeTraversal.traverseFunction(NodeTraversal.java:569)\r
+ \tat com.google.javascript.jscomp.NodeTraversal.traverseBranch(NodeTraversal.java:522)\r
+ \tat com.google.javascript.jscomp.NodeTraversal.traverseBranch(NodeTraversal.java:528)\r
+ \tat com.google.javascript.jscomp.NodeTraversal.traverseBranch(NodeTraversal.java:528)\r
+ \tat com.google.javascript.jscomp.NodeTraversal.traverseBranch(NodeTraversal.java:528)\r
+ \tat com.google.javascript.jscomp.NodeTraversal.traverseBranch(NodeTraversal.java:528)\r
+ \tat com.google.javascript.jscomp.NodeTraversal.traverseWithScope(NodeTraversal.java:353)\r
+ \tat com.google.javascript.jscomp.TypeCheck.check(TypeCheck.java:400)\r
+ \tat com.google.javascript.jscomp.TypeCheck.process(TypeCheck.java:371)\r
+ \tat com.google.javascript.jscomp.DefaultPassConfig$30$1.process(DefaultPassConfig.java:1237)\r
+ \tat com.google.javascript.jscomp.PhaseOptimizer$NamedPass.process(PhaseOptimizer.java:293)\r
+ \tat com.google.javascript.jscomp.PhaseOptimizer.process(PhaseOptimizer.java:237)\r
+ \tat com.google.javascript.jscomp.Compiler.check(Compiler.java:830)\r
+ \tat com.google.javascript.jscomp.Compiler.compileInternal(Compiler.java:742)\r
+ \tat com.google.javascript.jscomp.Compiler.access$000(Compiler.java:83)\r
+ \tat com.google.javascript.jscomp.Compiler$2.call(Compiler.java:650)\r
+ \tat com.google.javascript.jscomp.Compiler$2.call(Compiler.java:647)\r
+ \tat com.google.javascript.jscomp.Compiler$3.call(Compiler.java:677)\r
+ \tat java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)\r
+ \tat java.util.concurrent.FutureTask.run(FutureTask.java:138)\r
+ \tat java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:895)\r
+ \tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:918)\r
+ \tat java.lang.Thread.run(Thread.java:680)\r
+ make: *** [crash] Error 254\r
+ \r
+ \u0026gt; What version of the product are you using? On what operating system?\r
+ closure-compiler release 20130411.  I have also encountered this error on earlier versions of closure-compiler, but the above repro recipe uses 20130411.  I\u0027m currently testing on OS X but this probably happens on other platforms too.\r
+ \r
+ \u0026gt; Please provide any additional information below.\r
+ \r
+ Here\u0027s the contents of crash.js (included in the attached archive):\r
+ \r
+ -----begin snip-----\r
+ var test \u003d {};\r
+ \r
+ /**\r
+  * @interface\r
+  */\r
+ test.T \u003d function() {};\r
+ \r
+ /**\r
+  * @constructor\r
+  * @implements {test.T}\r
+  */\r
+ test.A \u003d function() {};\r
+ \r
+ /**\r
+  * @constructor\r
+  * @implements {test.T}\r
+  */\r
+ test.B \u003d function() {};\r
+ \r
+ /**\r
+  * @constructor\r
+  */\r
+ test.X \u003d function() {\r
+     this.type \u003d test.A;\r
+     this.t \u003d this.f();\r
+ };\r
+ \r
+ /**\r
+  * @return {test.T}\r
+  */\r
+ test.X.prototype.f \u003d function() {\r
+     if (this.type \u003d\u003d\u003d test.A) {\r
+         return new test.A();\r
+     } else if (this.type \u003d\u003d\u003d test.B) {\r
+         return new test.B();\r
+     }\r
+ };\r
+ -----end snip-----\r

@@ -1,4 +1,0 @@
-
-
-I have reduced the problem reported to me down to a minimal test case which I will attach.
-

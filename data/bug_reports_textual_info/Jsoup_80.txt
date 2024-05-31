@@ -1,4 +1,4 @@
-
+Faulty Xml Causes IndexOutOfBoundsException
 
 @Test
 public void parseFaultyXml() {
@@ -6,6 +6,7 @@ public void parseFaultyXml() {
     Document doc = Jsoup.parse(xml, "", Parser.xmlParser());
 }
 Results in:
+
 java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
 
 	at java.util.ArrayList.rangeCheck(ArrayList.java:657)
@@ -17,9 +18,3 @@ java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
 	at org.jsoup.parser.TreeBuilder.parse(TreeBuilder.java:45)
 	at org.jsoup.parser.Parser.parseInput(Parser.java:34)
 	at org.jsoup.Jsoup.parse(Jsoup.java:45)
-
-
-
-
-Thanks for the report and the easy repro! Fixed.
-

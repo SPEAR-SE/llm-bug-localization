@@ -1,4 +1,0 @@
-
-
-The language codecs are platform-depedent, please see Common Bug #3 for details.
-

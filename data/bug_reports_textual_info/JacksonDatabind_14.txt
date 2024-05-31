@@ -1,6 +1,7 @@
-
+Custom deserializer with parent object update
 
 Hi, I have custom deserializer for DataA. An instance of DataA is contained in DataB, when updating an existing instance of DataB (as opposed to creating a new one) I get an exception when deserializing via a JsonNode object (deserializing via a String object works).
+
 import java.io.IOException;
 
 import org.junit.Assert;
@@ -86,6 +87,7 @@ public class TestDeserTest {
     }
 }
 The trace:
+
 com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException: Unrecognized field "i" (class myorg.TestDeserTest$DataB), not marked as ignorable (2 known properties: "da", "k"])
  at [Source: N/A; line: -1, column: -1] (through reference chain: myorg.DataB["da"]->myorg.DataB["i"])
     at com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException.from(UnrecognizedPropertyException.java:51)
@@ -129,22 +131,3 @@ com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException: Unrecognized f
     at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:675)
     at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:382)
     at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192)
-
-
-
-Interesting. I can reproduce it with given test case.
-One thing I notice is that replacing jp.getCodec().readTree(jp) (or simpler equivalent of jp.readValueAsTree()) give the exception; but simple jp.skipChildren() does not.
-So something in reading-as-tree is not working as expected...
-
-
-
-Whoa. Internally it looks like JsonNode deserializer is resolved to be deserializer for DataA... wires getting crossed badly somewhere.
-
-
-
-Actually, not problem with caching, but rather with _rootDeserializer that ObjectReader caches locally. Need to see how this can be by-passed.
-
-
-
-Fixed in 2.5.3, although I did also backport it in 2.4.6 just in case.
-

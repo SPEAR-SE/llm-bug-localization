@@ -1,0 +1,22 @@
+@define does not support strings
+
+$ java -jar compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS --define\u003d\u0027test.VERSION\u003d1.0.0\u0027 --js_output_file \r
+ test-min.js --js test.js\r
+ java.lang.RuntimeException: --define flag syntax invalid: test.VERSION\u003d1.0.0\r
+ \tat com.google.javascript.jscomp.AbstractCommandLineRunner.createDefineReplacements(Unknown Source)\r
+ \tat com.google.javascript.jscomp.AbstractCommandLineRunner.initOptionsFromFlags(Unknown Source)\r
+ \tat com.google.javascript.jscomp.CommandLineRunner.createOptions(Unknown Source)\r
+ \tat com.google.javascript.jscomp.AbstractCommandLineRunner.doRun(Unknown Source)\r
+ \tat com.google.javascript.jscomp.AbstractCommandLineRunner.run(Unknown Source)\r
+ \tat com.google.javascript.jscomp.CommandLineRunner.main(Unknown Source)\r
+ \r
+ test.js:\r
+ /** @define {string} */\r
+ test.VERSION \u003d \u0026quot;\u0026quot;;\r
+ \r
+ \r
+ I have tried both of these:\r
+ --define\u003d\u0027test.VERSION\u003d1.0.0\u0027\r
+ --define\u003d\u0027test.VERSION\u003d\u0026quot;1.0.0\u0026quot;\u0027\r
+ \r
+ Both generate the same error.

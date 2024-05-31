@@ -1,4 +1,0 @@
-
-
-When setting the format to have a nullString of "" and having an empty header value, a nullPointerException is thrown.
-

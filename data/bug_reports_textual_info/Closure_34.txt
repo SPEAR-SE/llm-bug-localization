@@ -1,0 +1,64 @@
+StackOverflowError exception when running closure compiler (javascript attached)
+
+\u003cb\u003eWhat steps will reproduce the problem?\u003c/b\u003e
+ \r
+ 1. I\u0027m trying to run: java -jar compiler.jar --js AdMedia.eam.js --js_output_file AdMedia.eam.min.js\r
+ 2. AdMedia.eam.js is attached.\r
+ \r
+ \u003cb\u003eWhat is the expected output? What do you see instead?\u003c/b\u003e
+ \r
+ I get the following exception:\r
+ java.lang.RuntimeException: java.lang.RuntimeException: java.lang.StackOverflowError\r
+         at com.google.javascript.jscomp.Compiler.runCallable(Compiler.java:643)\r
+         at com.google.javascript.jscomp.Compiler.runInCompilerThread(Compiler.java:588)\r
+         at com.google.javascript.jscomp.Compiler.toSource(Compiler.java:1492)\r
+         at com.google.javascript.jscomp.AbstractCommandLineRunner.processResults(AbstractCommandLineRunner.java:788)\r
+         at com.google.javascript.jscomp.AbstractCommandLineRunner.doRun(AbstractCommandLineRunner.java:726)\r
+         at com.google.javascript.jscomp.AbstractCommandLineRunner.run(AbstractCommandLineRunner.java:334)\r
+         at com.google.javascript.jscomp.CommandLineRunner.main(CommandLineRunner.java:871)\r
+ Caused by: java.lang.RuntimeException: java.lang.StackOverflowError\r
+         at com.google.javascript.jscomp.Compiler.runCallable(Compiler.java:643)\r
+         at com.google.javascript.jscomp.Compiler.runInCompilerThread(Compiler.java:588)\r
+         at com.google.javascript.jscomp.Compiler.toSource(Compiler.java:1608)\r
+         at com.google.javascript.jscomp.Compiler$5.call(Compiler.java:1503)\r
+         at com.google.javascript.jscomp.Compiler$5.call(Compiler.java:1492)\r
+         at com.google.javascript.jscomp.Compiler$2.run(Compiler.java:615)\r
+         at java.lang.Thread.run(Unknown Source)\r
+ Caused by: java.lang.StackOverflowError\r
+         at com.google.javascript.jscomp.CodeGenerator.add(CodeGenerator.java:91)\r
+         at com.google.javascript.jscomp.CodeGenerator.addExpr(CodeGenerator.java:881)\r
+         at com.google.javascript.jscomp.CodeGenerator.add(CodeGenerator.java:103)\r
+         at com.google.javascript.jscomp.CodeGenerator.addExpr(CodeGenerator.java:881)\r
+         at com.google.javascript.jscomp.CodeGenerator.add(CodeGenerator.java:103)\r
+         at com.google.javascript.jscomp.CodeGenerator.addExpr(CodeGenerator.java:881)\r
+         at com.google.javascript.jscomp.CodeGenerator.add(CodeGenerator.java:103)\r
+         at com.google.javascript.jscomp.CodeGenerator.addExpr(CodeGenerator.java:881)\r
+         at com.google.javascript.jscomp.CodeGenerator.add(CodeGenerator.java:103)\r
+         at com.google.javascript.jscomp.CodeGenerator.addExpr(CodeGenerator.java:881)\r
+         at com.google.javascript.jscomp.CodeGenerator.add(CodeGenerator.java:103)\r
+         at com.google.javascript.jscomp.CodeGenerator.addExpr(CodeGenerator.java:881)\r
+ .\r
+ .\r
+ .\r
+ \r
+ \r
+ \u003cb\u003eWhat version of the product are you using? On what operating system?\u003c/b\u003e
+ \r
+ Closure:\r
+ Closure Compiler (http://code.google.com/closure/compiler)\r
+ Version: 20120305 (revision 1810)\r
+ Built on: 2012/03/05 20:55\r
+ \r
+ Java:\r
+ java version \u0026quot;1.6.0_31\u0026quot;\r
+ Java(TM) SE Runtime Environment (build 1.6.0_31-b05)\r
+ Java HotSpot(TM) Client VM (build 20.6-b01, mixed mode, sharing)\r
+ \r
+ Windows 7 (64-bit)\r
+ \r
+ \u003cb\u003ePlease provide any additional information below.\u003c/b\u003e
+ \r
+ Works fine on the following Java version:\r
+ java version \u0026quot;1.7.0\u0026quot;\r
+ Java(TM) SE Runtime Environment (build 1.7.0-b147)\r
+ Java HotSpot(TM) 64-Bit Server VM (build 21.0-b17, mixed mode)

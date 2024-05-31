@@ -1,8 +1,8 @@
-
+NPE in KMeansPlusPlusClusterer unittest
 
 When running this unittest, I am facing this NPE:
 java.lang.NullPointerException
-	at org.apache.commons.math.stat.clustering.KMeansPlusPlusClusterer.assignPointsToClusters(KMeansPlusPlusClusterer.java:91)
+at org.apache.commons.math.stat.clustering.KMeansPlusPlusClusterer.assignPointsToClusters(KMeansPlusPlusClusterer.java:91)
 This is the unittest:
 package org.fao.fisheries.chronicles.calcuation.cluster;
 import static org.junit.Assert.assertEquals;
@@ -17,19 +17,18 @@ import org.fao.fisheries.chronicles.input.CsvImportProcess;
 import org.fao.fisheries.chronicles.input.Top200Csv;
 import org.junit.Test;
 public class ClusterAnalysisTest {
-	@Test
-	public void testPerformClusterAnalysis2() {
-		KMeansPlusPlusClusterer<EuclideanIntegerPoint> transformer = new KMeansPlusPlusClusterer<EuclideanIntegerPoint>(
-				new Random(1746432956321l));
-		EuclideanIntegerPoint[] points = new EuclideanIntegerPoint[] {
-				new EuclideanIntegerPoint(new int[] 
+@Test
+public void testPerformClusterAnalysis2() {
+KMeansPlusPlusClusterer<EuclideanIntegerPoint> transformer = new KMeansPlusPlusClusterer<EuclideanIntegerPoint>(
+new Random(1746432956321l));
+EuclideanIntegerPoint[] points = new EuclideanIntegerPoint[] {
+new EuclideanIntegerPoint(new int[]
 { 1959, 325100 }
 ),
-				new EuclideanIntegerPoint(new int[] 
+new EuclideanIntegerPoint(new int[]
 { 1960, 373200 }
 ), };
-		List<Cluster<EuclideanIntegerPoint>> clusters = transformer.cluster(Arrays.asList(points), 1, 1);
-		assertEquals(1, clusters.size());
-	}
+List<Cluster<EuclideanIntegerPoint>> clusters = transformer.cluster(Arrays.asList(points), 1, 1);
+assertEquals(1, clusters.size());
 }
-
+}

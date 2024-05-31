@@ -1,7 +1,6 @@
-
+Tar files created by AIX native tar, and which contain symlinks, cannot be read by TarArchiveInputStream
 
 A simple tar file created on AIX using the native (/usr/bin/tar tar utility) and which contains a symbolic link, cannot be loaded by TarArchiveInputStream:
-
 java.io.IOException: Error detected parsing the header
 	at org.apache.commons.compress.archivers.tar.TarArchiveInputStream.getNextTarEntry(TarArchiveInputStream.java:201)
 	at Extractor.extract(Extractor.java:13)
@@ -39,7 +38,4 @@ Caused by: java.lang.IllegalArgumentException: Invalid byte 0 at offset 0 in '{N
 	at org.apache.commons.compress.archivers.tar.TarArchiveEntry.<init>(TarArchiveEntry.java:314)
 	at org.apache.commons.compress.archivers.tar.TarArchiveInputStream.getNextTarEntry(TarArchiveInputStream.java:199)
 	... 29 more
-
-
 Tested with 1.2 and the 1.4 nightly build from Feb 23 (Implementation-Build: trunk@r1292625; 2012-02-23 03:20:30+0000)
-

@@ -1,4 +1,4 @@
-
+ArrayIndexOutOfBoundsException: 128 when repeatedly serializing to a byte array
 
 java.lang.ArrayIndexOutOfBoundsException: 128
     at com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer.addName(ByteQuadsCanonicalizer.java:853)
@@ -41,8 +41,8 @@ java.lang.ArrayIndexOutOfBoundsException: 128
     at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:675)
     at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:382)
     at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192)
-
 Repro:
+
 @Test
 public void spamTest() {
         ObjectMapper mapper = new ObjectMapper();
@@ -64,8 +64,7 @@ public void spamTest() {
             logger.error( "Iteration: {}", i );
         }
 }
-
-public class ServerIndexPair {
+ public class ServerIndexPair {
     public static final String INDEX_PAIR_FIELD = "indexPair";
     private final byte[]       indexPair;
 
@@ -80,8 +79,7 @@ public class ServerIndexPair {
         return indexPair;
     }
 }
-
-public class ObjectUserKey {
+ public class ObjectUserKey {
     public static final String SEPARATOR = ":";
     private final String       objectId;
     private final UUID         userKey;
@@ -164,35 +162,3 @@ public class ObjectUserKey {
     }
 
 }
-
-
-
-
-UPVOTE!!!!!!
-
-
-
-+1
-
-
-
-I suspect this is same as continuation of #207, so it is being worked on. Nasty one obviously.
-Will link that issue back to this one.
-
-
-
-The underlying problem same as what was left over from #207 (there were two unrelated problems, but further reports were added in the issue). I used modified test case from that bug (to avoid dependency to ObjectMapper), but I am confident this fixes the root cause.
-Fix will be part of 2.6.2, to be released relatively soon: I will just need to over list of all bugs submitted during past couple of weeks to bundle up all critical fixes.
-
-
-
-Thanks, we'll be sure to test it out
-
-
-
-hi @cowtowncoder, pending a fix version, is there any workaround for this (eg. disable the ByteQuadsCanonicalizer)?
-
-
-
-@simonbasle Yes, disable JsonFactory.Feature.CANONICALIZE_FIELD_NAMES. That will avoid canonicalization.
-

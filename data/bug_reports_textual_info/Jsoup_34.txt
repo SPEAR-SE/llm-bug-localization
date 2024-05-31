@@ -1,6 +1,7 @@
-
+Parser error on commented CDATA
 
 Jsoup gives the following error when trying to parse this HTML: https://gist.github.com/felipehummel/6122799
+
 java.lang.ArrayIndexOutOfBoundsException: 8666
     at org.jsoup.parser.CharacterReader.nextIndexOf(CharacterReader.java:92)
     at org.jsoup.parser.CharacterReader.consumeTo(CharacterReader.java:112)
@@ -12,19 +13,12 @@ java.lang.ArrayIndexOutOfBoundsException: 8666
     at org.jsoup.parser.Parser.parse(Parser.java:90)
     at org.jsoup.Jsoup.parse(Jsoup.java:58)
 ...
-
 The HTML is from a entry in a RSS feed. If I remove the line:
-// ]]
 
+// ]]
 or just the
 ]]
+
 Then it parses the HTML nicely.
+
 Does this syntax error should really throw an exception or it should be silently ignored?
-
-
-
-Same here
-    Jsoup.clean("Could not to read data from xml file due to that tag <![CDATA[]]", Whitelist.none());
-
-Results in an instant crash using jsoup version 1.7.2
-

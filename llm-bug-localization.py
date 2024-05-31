@@ -97,10 +97,11 @@ def get_methods_covered_by_a_test(test_id: str, page=1) -> (list, int):
                 if method not in covered_methods and "<clinit>" not in method:
                     covered_methods.append(
                         lines_of_code_obj_list["class_name"] + "#" + lines_of_code_obj_list["method_name"])
-        n_pages = math.ceil(len(covered_methods) / 200)
+        methods_per_page = 100
+        n_pages = math.ceil(len(covered_methods) / methods_per_page)
         if n_pages > 1:
-            start = (page - 1) * 200
-            end = page * 200
+            start = (page - 1) * methods_per_page
+            end = page * methods_per_page
             if end > len(covered_methods):
                 end = len(covered_methods)
             result = covered_methods[start:end]
@@ -134,15 +135,13 @@ def get_tests_that_better_cover_the_stack_trace() -> list:
 @tool
 def get_bug_report_textual_info():
     """
-    Returns the textual info contained the bug report. Can be a string or a json depending on the bug
+    Returns the textual info contained the bug report (title and description)
     """
     txt_file = os.path.join(paths_dict["bug_reports_textual_info_path"], f"{project}_{bug_id}.txt")
-    json_file = os.path.join(paths_dict["bug_reports_textual_info_path"], f"{project}_{bug_id}.json")
+    file_content = ""
     if os.path.isfile(txt_file):
         with open(txt_file, 'r', encoding='utf-8') as file_obj:
             file_content = file_obj.read()
-    elif os.path.isfile(json_file):
-        file_content = utils.json_file_to_dict(json_file)
     return file_content
 
 

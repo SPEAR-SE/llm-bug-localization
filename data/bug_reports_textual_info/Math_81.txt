@@ -1,7 +1,6 @@
-
+ArrayIndexOutOfBoundException in EigenDecompositionImpl
 
 The following test triggers an ArrayIndexOutOfBoundException:
-
     public void testMath308() {
 
         double[] mainTridiagonal = {
@@ -39,10 +38,7 @@ The following test triggers an ArrayIndexOutOfBoundException:
         }
 
     }
-
-
 Running the previous method as a Junit test triggers the exception when the EigenDecompositionImpl instance is built. The first few lines of the stack trace are:
-
 java.lang.ArrayIndexOutOfBoundsException: -1
 	at org.apache.commons.math.linear.EigenDecompositionImpl.computeShiftIncrement(EigenDecompositionImpl.java:1545)
 	at org.apache.commons.math.linear.EigenDecompositionImpl.goodStep(EigenDecompositionImpl.java:1072)
@@ -51,7 +47,4 @@ java.lang.ArrayIndexOutOfBoundsException: -1
 	at org.apache.commons.math.linear.EigenDecompositionImpl.decompose(EigenDecompositionImpl.java:246)
 	at org.apache.commons.math.linear.EigenDecompositionImpl.<init>(EigenDecompositionImpl.java:205)
 	at org.apache.commons.math.linear.EigenDecompositionImplTest.testMath308(EigenDecompositionImplTest.java:136)
-
-
 I'm currently investigating this bug. It is not a simple index translation error between the original fortran (Lapack) and commons-math implementation.
-

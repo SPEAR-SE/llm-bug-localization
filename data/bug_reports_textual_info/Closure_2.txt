@@ -1,0 +1,89 @@
+combining @interface and multiple @extends can crash compiler
+
+Compile this:
+---------------------------------
+// \u003d\u003dClosureCompiler\u003d\u003d
+// @compilation_level SIMPLE_OPTIMIZATIONS
+// @warning_level VERBOSE
+// @output_file_name default.js
+// \u003d\u003d/ClosureCompiler\u003d\u003d
+
+/**
+ * @interface
+ * @extends {unknown_1}
+ * @extends {unknown_2}
+ */
+function Foo() {}
+---------------------------------
+
+\u003d\u0026gt; Get this..
+---------------------------------------
+23: java.lang.NullPointerException
+\tat com.google.javascript.jscomp.TypeCheck.checkInterfaceConflictProperties(TypeCheck.java:1544)
+\tat com.google.javascript.jscomp.TypeCheck.visitFunction(TypeCheck.java:1635)
+\tat com.google.javascript.jscomp.TypeCheck.visit(TypeCheck.java:761)
+\tat com.google.javascript.jscomp.NodeTraversal.traverseBranch(NodeTraversal.java:509)
+\tat com.google.javascript.jscomp.NodeTraversal.traverseBranch(NodeTraversal.java:502)
+\tat com.google.javascript.jscomp.NodeTraversal.traverseBranch(NodeTraversal.java:502)
+\tat com.google.javascript.jscomp.NodeTraversal.traverseWithScope(NodeTraversal.java:347)
+\tat com.google.javascript.jscomp.TypeCheck.check(TypeCheck.java:400)
+\tat com.google.javascript.jscomp.TypeCheck.process(TypeCheck.java:371)
+\tat com.google.javascript.jscomp.DefaultPassConfig$29$1.process(DefaultPassConfig.java:1209)
+\tat com.google.javascript.jscomp.PhaseOptimizer$PassFactoryDelegate.processInternal(PhaseOptimizer.java:303)
+\tat com.google.javascript.jscomp.PhaseOptimizer$NamedPass.process(PhaseOptimizer.java:279)
+\tat com.google.javascript.jscomp.PhaseOptimizer.process(PhaseOptimizer.java:191)
+\tat com.google.javascript.jscomp.Compiler.check(Compiler.java:814)
+\tat com.google.javascript.jscomp.Compiler.compileInternal(Compiler.java:729)
+\tat com.google.javascript.jscomp.Compiler.access$000(Compiler.java:85)
+\tat com.google.javascript.jscomp.Compiler$2.call(Compiler.java:637)
+\tat com.google.javascript.jscomp.Compiler$2.call(Compiler.java:634)
+\tat com.google.javascript.jscomp.Compiler.runInCompilerThread(Compiler.java:694)
+\tat com.google.javascript.jscomp.Compiler.compile(Compiler.java:634)
+\tat com.google.javascript.jscomp.Compiler.compile(Compiler.java:590)
+\tat com.google.javascript.jscomp.webservice.backend.CompilerInvokerImpl.compile(CompilerInvokerImpl.java:47)
+\tat com.google.javascript.jscomp.webservice.backend.ServerController.executeRequest(ServerController.java:177)
+\tat com.google.javascript.jscomp.webservice.backend.CompilationRequestHandler.serviceParsedRequest(CompilationRequestHandler.java:180)
+\tat com.google.javascript.jscomp.webservice.backend.CompilationRequestHandler.service(CompilationRequestHandler.java:162)
+\tat com.google.javascript.jscomp.webservice.frontend.CompilationServlet.doPost(CompilationServlet.java:83)
+\tat javax.servlet.http.HttpServlet.service(HttpServlet.java:637)
+\tat javax.servlet.http.HttpServlet.service(HttpServlet.java:717)
+\tat org.mortbay.jetty.servlet.ServletHolder.handle(ServletHolder.java:511)
+\tat org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1166)
+\tat com.google.apphosting.utils.servlet.ParseBlobUploadFilter.doFilter(ParseBlobUploadFilter.java:102)
+\tat org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1157)
+\tat com.google.apphosting.runtime.jetty.SaveSessionFilter.doFilter(SaveSessionFilter.java:35)
+\tat org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1157)
+\tat com.google.apphosting.utils.servlet.TransactionCleanupFilter.doFilter(TransactionCleanupFilter.java:43)
+\tat org.mortbay.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1157)
+\tat org.mortbay.jetty.servlet.ServletHandler.handle(ServletHandler.java:388)
+\tat org.mortbay.jetty.security.SecurityHandler.handle(SecurityHandler.java:216)
+\tat org.mortbay.jetty.servlet.SessionHandler.handle(SessionHandler.java:182)
+\tat org.mortbay.jetty.handler.ContextHandler.handle(ContextHandler.java:765)
+\tat org.mortbay.jetty.webapp.WebAppContext.handle(WebAppContext.java:418)
+\tat com.google.apphosting.runtime.jetty.AppVersionHandlerMap.handle(AppVersionHandlerMap.java:266)
+\tat org.mortbay.jetty.handler.HandlerWrapper.handle(HandlerWrapper.java:152)
+\tat org.mortbay.jetty.Server.handle(Server.java:326)
+\tat org.mortbay.jetty.HttpConnection.handleRequest(HttpConnection.java:542)
+\tat org.mortbay.jetty.HttpConnection$RequestHandler.headerComplete(HttpConnection.java:923)
+\tat com.google.apphosting.runtime.jetty.RpcRequestParser.parseAvailable(RpcRequestParser.java:76)
+\tat org.mortbay.jetty.HttpConnection.handle(HttpConnection.java:404)
+\tat com.google.apphosting.runtime.jetty.JettyServletEngineAdapter.serviceRequest(JettyServletEngineAdapter.java:146)
+\tat com.google.apphosting.runtime.JavaRuntime$RequestRunnable.run(JavaRuntime.java:447)
+\tat com.google.tracing.TraceContext$TraceContextRunnable.runInContext(TraceContext.java:454)
+\tat com.google.tracing.TraceContext$TraceContextRunnable$1.run(TraceContext.java:461)
+\tat com.google.tracing.TraceContext.runInContext(TraceContext.java:703)
+\tat com.google.tracing.TraceContext$AbstractTraceContextCallback.runInInheritedContextNoUnref(TraceContext.java:338)
+\tat com.google.tracing.TraceContext$AbstractTraceContextCallback.runInInheritedContext(TraceContext.java:330)
+\tat com.google.tracing.TraceContext$TraceContextRunnable.run(TraceContext.java:458)
+\tat com.google.apphosting.runtime.ThreadGroupPool$PoolEntry.run(ThreadGroupPool.java:251)
+\tat java.lang.Thread.run(Thread.java:679)
+
+Original Post Data:
+output_format\u003djson\u0026amp;output_info\u003dcompiled_code\u0026amp;output_info\u003dwarnings\u0026amp;output_info\u003derrors\u0026amp;output_info\u003dstatistics\u0026amp;compilation_level\u003dSIMPLE_OPTIMIZATIONS\u0026amp;warning_level\u003dVERBOSE\u0026amp;output_file_name\u003ddefault.js\u0026amp;js_code\u003d%2F**%0A*%20%40interface%0A*%20%40extends%20%7BA%7D%0A*%20%40extends%20%7BB%7D%0A*%2F%0Afunction%20Foo()%20%7B%7D
+------------------
+
+
+Seems like a combination of @interface plus more than one @extend and where at least one of the @extend types are unknown causes a crash.
+
+Regards
+/ Fredrik Blomqvist

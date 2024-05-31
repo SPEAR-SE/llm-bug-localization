@@ -1,8 +1,0 @@
-
-
-JavaDoc for TypeHandler states that createValue will
-
-* @throws ParseException if the value creation for the given object type failedtype
-
- However createValue(String str, Class<?> clazz) will return null if the clazz is unknown.
-

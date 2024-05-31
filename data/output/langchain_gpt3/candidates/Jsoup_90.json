@@ -1,0 +1,12 @@
+{
+    "method_signatures": [
+        "org.jsoup.parser.TreeBuilder#popStackToClose",
+        "org.jsoup.parser.HtmlTreeBuilder#popStackToClose",
+        "org.jsoup.parser.HtmlTreeBuilder#inSpecificScope",
+        "org.jsoup.parser.HtmlTreeBuilder#inScope",
+        "org.jsoup.parser.HtmlTreeBuilder#inButtonScope"
+    ],
+    "project_name": "Jsoup",
+    "bug_id": "90",
+    "final_ans": "Based on the methods covered by the tests, I have identified the following potential suspicious methods that might be leading to the `ArrayIndexOutOfBoundsException`:\n\n1. `org.jsoup.parser.TreeBuilder.popStackToClose`\n2. `org.jsoup.parser.HtmlTreeBuilder.popStackToClose`\n3. `org.jsoup.parser.HtmlTreeBuilder.inSpecificScope`\n4. `org.jsoup.parser.HtmlTreeBuilder.inScope`\n5. `org.jsoup.parser.HtmlTreeBuilder.inButtonScope`\n\nThese methods are related to the parsing and handling of HTML elements, which could potentially be causing the index out of bounds exception. Further analysis of these methods is recommended to identify the root cause of the issue.\n\nHere is the JSON object ranking the top 5 suspicious methods:\n```json\n{\n    \"method_signatures\": [\n        \"org.jsoup.parser.TreeBuilder#popStackToClose\",\n        \"org.jsoup.parser.HtmlTreeBuilder#popStackToClose\",\n        \"org.jsoup.parser.HtmlTreeBuilder#inSpecificScope\",\n        \"org.jsoup.parser.HtmlTreeBuilder#inScope\",\n        \"org.jsoup.parser.HtmlTreeBuilder#inButtonScope\"\n    ]\n}\n```"
+}

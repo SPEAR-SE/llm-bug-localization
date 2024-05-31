@@ -1,7 +1,9 @@
-
+Deserialization from "{}" to ObjectNode field causes "out of END_OBJECT token" error
 
 I found that deserializing from an empty object ({}) to ObjectNode field in a class field fails.
+
 Here is the minimum code to reproduce:
+
 public class Main
 {
     public static class MyValue
@@ -33,6 +35,7 @@ public class Main
     }
 }
 Result is:
+
 json: {}
 Deserialized to ObjectNode: {}
 Exception in thread "main" com.fasterxml.jackson.databind.JsonMappingException: Can not deserialize instance of com.fasterxml.jackson.databind.node.ObjectNode out of END_OBJECT token
@@ -48,28 +51,17 @@ Exception in thread "main" com.fasterxml.jackson.databind.JsonMappingException: 
         at com.fasterxml.jackson.databind.ObjectMapper._readMapAndClose(ObjectMapper.java:3731)
         at com.fasterxml.jackson.databind.ObjectMapper.readValue(ObjectMapper.java:2724)
         at Main.main(Main.java:35)
-
 If the object is not empty (e.g. {"k":"v"}), it works:
+
         ...
         ObjectNode object = new ObjectNode(JsonNodeFactory.instance);
         object.put("k", "v");  // added
         ...
-json: {"k":"v"}
+ json: {"k":"v"}
 Deserialized to ObjectNode: {"k":"v"}
 Deserialized to MyValue: io.digdag.cli.Main$MyValue@17550481
-
 Environment:
 
 jackson-core 2.6.2
 jackson-databind 2.6.2
 Java 8 (Java(TM) SE Runtime Environment (build 1.8.0_20-b26))
-
-
-
-
-Interesting. Thank you for reporting this, will try to fix it.
-
-
-
-Ok. This is due to a lesser-known aspect of deserialization of JSON Objects; parser may be positioned over first content token, and this in turn may actually be END_OBJECT. Fixed ObjectNode deserializer to handle that correctly.
-

@@ -1,7 +1,6 @@
+TarArchiveInputStream throws IllegalArgumentException instead of IOException
 
-
-TarArchiveInputStream is throwing  IllegalArgumentException instead of IOException on corrupt files, in direct contradiction to the Javadoc. Here is a stack-trace:
-
+TarArchiveInputStream is throwing IllegalArgumentException instead of IOException on corrupt files, in direct contradiction to the Javadoc. Here is a stack-trace:
 java.lang.IllegalArgumentException: Invalid byte -1 at offset 7 in '<some bytes>' len=8
 	at org.apache.commons.compress.archivers.tar.TarUtils.parseOctal(TarUtils.java:86)
 	at org.apache.commons.compress.archivers.tar.TarArchiveEntry.parseTarHeader(TarArchiveEntry.java:790)
@@ -33,7 +32,4 @@ java.lang.IllegalArgumentException: Invalid byte -1 at offset 7 in '<some bytes>
 	at com.googlecode.boostmavenproject.GetSourcesMojo.execute(GetSourcesMojo.java:111)
 	at org.apache.maven.plugin.DefaultBuildPluginManager.executeMojo(DefaultBuildPluginManager.java:101)
 	... 20 more
-
-
 Expected behavior: TarArchiveInputStream should wrap the IllegalArgumentException in an IOException.
-

@@ -1,0 +1,43 @@
+resolveTypes: jstype.UnionType cannot be cast to jstype.ObjectType
+
+\u003cb\u003eWhat steps will reproduce the problem?\u003c/b\u003e
+ \r
+ 1. Compile a bunch of JavaScript files that I can\u0027t release with these options: [\u0027--create_name_map_files\u0027, \u0027true\u0027, \u0027--jscomp_warning\u0027, \u0027missingProperties\u0027, \u0027--jscomp_warning\u0027, \u0027undefinedVars\u0027, \u0027--jscomp_warning\u0027, \u0027checkTypes\u0027, \u0027--warning_level\u0027, \u0027VERBOSE\u0027, \u0027--summary_detail_level\u0027, \u00273\u0027, \u0027--process_closure_primitives\u0027, \u0027true\u0027, \u0027--jscomp_error\u0027, \u0027strictModuleDepCheck\u0027, \u0027--jscomp_error\u0027, \u0027invalidCasts\u0027, \u0027--logging_level\u0027, \u0027ALL\u0027, \u0027--compilation_level\u0027, \u0027ADVANCED_OPTIMIZATIONS\u0027]\r
+ \r
+ 2. During this pass:\r
+ \r
+         Oct 26, 2010 12:09:38 AM com.google.javascript.jscomp.PhaseOptimizer$NamedPass process\r
+         INFO: resolveTypes\r
+ \r
+ , compilation terminates with:\r
+ \r
+         java.lang.RuntimeException: java.lang.ClassCastException: com.google.javascript.rhino.jstype.UnionType cannot be cast to com.google.javascript.rhino.jstype.ObjectType\r
+                 at com.google.javascript.jscomp.Compiler.runInCompilerThread(Unknown Source)\r
+                 at com.google.javascript.jscomp.Compiler.compile(Unknown Source)\r
+                 at com.google.javascript.jscomp.Compiler.compile(Unknown Source)\r
+                 at com.google.javascript.jscomp.AbstractCommandLineRunner.doRun(Unknown Source)\r
+                 at com.google.javascript.jscomp.AbstractCommandLineRunner.run(Unknown Source)\r
+                 at com.google.javascript.jscomp.CommandLineRunner.main(Unknown Source)\r
+         Caused by: java.lang.ClassCastException: com.google.javascript.rhino.jstype.UnionType cannot be cast to com.google.javascript.rhino.jstype.ObjectType\r
+                 at com.google.javascript.rhino.jstype.FunctionType.resolveInternal(Unknown Source)\r
+                 at com.google.javascript.rhino.jstype.JSType.resolve(Unknown Source)\r
+                 at com.google.javascript.jscomp.TypedScopeCreator$DeferredSetType.resolve(Unknown Source)\r
+                 at com.google.javascript.jscomp.TypedScopeCreator$AbstractScopeBuilder.resolveTypes(Unknown Source)\r
+                 at com.google.javascript.jscomp.TypedScopeCreator.createScope(Unknown Source)\r
+                 at com.google.javascript.jscomp.MemoizedScopeCreator.createScope(Unknown Source)\r
+                 at com.google.javascript.jscomp.DefaultPassConfig$GlobalTypeResolver.process(Unknown Source)\r
+                 at com.google.javascript.jscomp.PhaseOptimizer$PassFactoryDelegate.processInternal(Unknown Source)\r
+                 at com.google.javascript.jscomp.PhaseOptimizer$NamedPass.process(Unknown Source)\r
+                 at com.google.javascript.jscomp.PhaseOptimizer.process(Unknown Source)\r
+                 at com.google.javascript.jscomp.Compiler.check(Unknown Source)\r
+                 at com.google.javascript.jscomp.Compiler.compileInternal(Unknown Source)\r
+                 at com.google.javascript.jscomp.Compiler.access$000(Unknown Source)\r
+                 at com.google.javascript.jscomp.Compiler$1.call(Unknown Source)\r
+                 at com.google.javascript.jscomp.Compiler$1.call(Unknown Source)\r
+                 at com.google.javascript.jscomp.Compiler$2.run(Unknown Source)\r
+                 at java.lang.Thread.run(Thread.java:662)\r
+ \r
+ \r
+ \u003cb\u003eWhat version of the product are you using? On what operating system?\u003c/b\u003e
+ \r
+ I\u0027m using Closure Compiler r506.  The problem first appeared in r482.

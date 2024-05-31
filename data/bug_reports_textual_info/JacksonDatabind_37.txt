@@ -1,6 +1,7 @@
-
+Field in base class is not recognized, when using @JsonType.defaultImpl
 
 When deserializing JSON to Java POJOS, a field inherited from a base class is not recognized. Here is the stack:
+
 com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException: Unrecognized field "name" (class org.apache.calcite.model.JsonMapSchema), not marked as ignorable (2 known properties: "functions", "tables"])
  at [Source: {
   version: '1.0',
@@ -76,85 +77,6 @@ com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException: Unrecognized f
     at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
     at java.lang.reflect.Method.invoke(Method.java:483)
     at com.intellij.rt.execution.application.AppMain.main(AppMain.java:144)
-
 My JsonMapSchema class has a base class JsonSchema and it has a public field name. See https://github.com/apache/calcite/blob/master/core/src/test/java/org/apache/calcite/test/ModelTest.java.
+
 I have an application that worked in 2.6.3, fails in 2.7.0, so I suspect this is a regression.
-
-
-
-That does seem wrong.
-Would it be possible to have a minimalistic test case? I assume much of this could be removed while still reproduce the exception.
-
-
-
-Here you go:
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-public class ModelTest2 {
-  public static void main(String[] args) throws IOException {
-    final ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-    mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
-    final String json = "{\n"
-        + "   schemas: [\n"
-        + "     {\n"
-        + "       name: 'FoodMart'\n"
-        + "     }\n"
-        + "   ]\n"
-        + "}";
-    mapper.readValue(json, JsonRoot.class);
-  }
-
-  public static class JsonRoot {
-    public final List<JsonSchema> schemas = new ArrayList<>();
-  }
-
-  @JsonTypeInfo(
-      use = JsonTypeInfo.Id.NAME,
-      property = "type",
-      defaultImpl = JsonMapSchema.class)
-  @JsonSubTypes({
-      @JsonSubTypes.Type(value = JsonMapSchema.class, name = "map"),
-      @JsonSubTypes.Type(value = JsonJdbcSchema.class, name = "jdbc") })
-  public static abstract class JsonSchema {
-    public String name;
-  }
-
-  public static class JsonMapSchema extends JsonSchema {
-  }
-  public static class JsonJdbcSchema extends JsonSchema {
-  }
-}
-
-
-
-Thanks!
-
-
-
-Yes, I can reproduce this.
-Interesting enough, this only occurs when defaultImpl is used (explicit type id gives no trouble).
-And it is related to the only warning within code, related to construction of JavaType for defaultImpl, so this is related to refactoring of type resolution system in 2.7. All in all makes sense it's just for this case, as otherwise many other tests should be failing.
-Could be related to one other problem I fixed bit earlier, related to constructor in SimpleType.
-
-
-
-Ok... somewhat ironic; this was due to one thing I suspected could cause problems. And so it did.
-I was able to patch this to pass for tested case, and some others; but I'll file another issue for a bigger fix that may need to wait until 2.8. But patch should work for common cases until then.
-
-
-
-Glad I was able to help. Having just upgraded from 2.1.1, I'm perfectly happy with 2.6.3 for now and looking forward to trying YAML support.
-By the way, thank you for producing an excellent open source project. Jackson is a pleasure to use.
-
-
-
-@julianhyde Thank you -- glad you have enjoyed using it. And also for the bug report.
-

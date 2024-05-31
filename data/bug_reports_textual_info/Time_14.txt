@@ -28,5 +28,3 @@ isoLeap.plusDays(-1);
 Performing operations on dates around the ISO leap date react as if it exists, ie:
 System.out.println(isoLeap.minusDays(1).plusDays(2));
 Prints out '--03-01' as expected.
-
-A nasty bug, which should now be fixed in Git. Thanks for the spot.
